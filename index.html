@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lesson 5 Vocabulary Trainer</title>
+  <title>Vocabulary Trainer</title>
 
   <style>
     * {
@@ -26,9 +26,9 @@
     }
 
     h1 {
-      margin-bottom: 5px;
+      margin: 5px 0 6px;
       text-align: center;
-      font-size: 1.8rem;
+      font-size: 1.85rem;
     }
 
     .subtitle {
@@ -51,6 +51,11 @@
       gap: 12px;
     }
 
+    .single-grid {
+      display: grid;
+      gap: 12px;
+    }
+
     button {
       width: 100%;
       border: none;
@@ -67,6 +72,11 @@
       transform: scale(0.98);
     }
 
+    button:disabled {
+      cursor: default;
+      opacity: 0.92;
+    }
+
     .primary {
       background: #315efb;
       color: white;
@@ -81,13 +91,8 @@
       background: #eef1f6;
     }
 
-    .danger {
-      background: #ffe3e3;
-      color: #c92a2a;
-    }
-
     .hidden {
-      display: none;
+      display: none !important;
     }
 
     .progress {
@@ -97,30 +102,50 @@
       margin-bottom: 12px;
     }
 
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .small-note {
+      font-size: 0.86rem;
+      color: #777;
+      line-height: 1.55;
+    }
+
     .word {
       font-size: 2rem;
       font-weight: 800;
       text-align: center;
-      margin: 25px 0 12px;
+      margin: 24px 0 14px;
       word-break: keep-all;
     }
 
     .meaning {
       font-size: 1.35rem;
       text-align: center;
-      margin-bottom: 18px;
+      margin: 18px 0;
+      font-weight: 700;
     }
 
     .example {
       border-top: 1px solid #eee;
       padding-top: 16px;
       font-size: 1rem;
-      line-height: 1.6;
+      line-height: 1.65;
       color: #444;
     }
 
+    .example-ko {
+      margin-top: 8px;
+      font-size: 0.94rem;
+      color: #777;
+      line-height: 1.55;
+    }
+
     .flashcard {
-      min-height: 260px;
+      min-height: 280px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -184,6 +209,12 @@
       color: #c92a2a;
     }
 
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
     .report {
       text-align: center;
     }
@@ -212,30 +243,30 @@
       border-radius: 15px;
     }
 
-    .review-box h3 {
-      margin-top: 0;
-    }
-
     .review-word {
       padding: 5px 0;
     }
 
-    .button-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .small-note {
-      font-size: 0.85rem;
+    .loading {
+      text-align: center;
       color: #777;
-      line-height: 1.5;
+      padding: 18px 0;
     }
 
-    .section-title {
-      font-size: 1.25rem;
+    .unscramble {
+      text-align: center;
+      font-size: 1.35rem;
       font-weight: 800;
-      margin-bottom: 15px;
+      letter-spacing: 0.22rem;
+      margin: 18px 0;
+      line-height: 1.8;
+    }
+
+    .question-label {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+      margin-bottom: 8px;
     }
 
     @media (max-width: 430px) {
@@ -255,369 +286,253 @@
 </head>
 
 <body>
-  <div class="container">
+<div class="container">
 
-    <!-- HOME -->
-    <section id="home">
-      <h1>📚 Lesson 5 Vocabulary</h1>
-      <div class="subtitle">Learn, Practice & Review</div>
+  <!-- GRADE SELECT -->
+  <section id="gradeScreen">
+    <h1>📚 Vocabulary Trainer</h1>
+    <div class="subtitle">Choose Your Grade</div>
 
-      <div class="card">
-        <div class="section-title">25 Words</div>
+    <div class="card single-grid">
+      <button onclick="selectGrade(1)">Grade 1</button>
+      <button onclick="selectGrade(2)">Grade 2</button>
+      <button onclick="selectGrade(3)">Grade 3</button>
+    </div>
+  </section>
 
-        <div class="menu-grid">
-          <button onclick="startFlashcards()">
-            🃏 Flashcards
-          </button>
 
-          <button onclick="startQuiz()">
-            🎯 Multiple Choice
-          </button>
+  <!-- LESSON SELECT -->
+  <section id="lessonScreen" class="hidden">
+    <h1 id="gradeTitle"></h1>
+    <div class="subtitle">Choose a Lesson</div>
 
-          <button onclick="startSpelling()">
-            ✏️ Spelling
-          </button>
+    <div class="card">
+      <div id="lessonLoading" class="loading">
+        🔎 Looking for lessons...
+      </div>
 
-          <button onclick="startReview()" id="reviewButton">
-            🔄 Review Wrong Words
-          </button>
+      <div id="lessonButtons" class="single-grid"></div>
+    </div>
+
+    <button class="secondary" onclick="backToGrades()">
+      ← Back to Grade
+    </button>
+  </section>
+
+
+  <!-- HOME -->
+  <section id="homeScreen" class="hidden">
+    <h1 id="lessonTitle"></h1>
+    <div class="subtitle" id="lessonSubtitle"></div>
+
+    <div class="card">
+      <div class="menu-grid">
+        <button onclick="startFlashcards()">
+          🃏 Flashcards
+        </button>
+
+        <button onclick="startPractice()">
+          🎯 Practice
+        </button>
+
+        <button onclick="startTest()">
+          👑 Test Yourself
+        </button>
+      </div>
+    </div>
+
+    <div class="card small-note">
+      💡 <strong>추천 학습 순서</strong><br>
+      Flashcards → Practice → Test Yourself
+    </div>
+
+    <button class="secondary" onclick="backToLessons()">
+      ← Lessons
+    </button>
+  </section>
+
+
+  <!-- FLASHCARDS -->
+  <section id="flashScreen" class="hidden">
+
+    <div class="progress" id="flashProgress"></div>
+
+    <div class="card flashcard" onclick="flipCard()">
+
+      <div class="word" id="flashWord"></div>
+
+      <div id="flashBack" class="hidden">
+        <div class="meaning" id="flashMeaning"></div>
+
+        <div class="example">
+          <div id="flashExample"></div>
+          <div class="example-ko" id="flashExampleKo"></div>
         </div>
       </div>
 
-      <div class="card small-note">
-        💡 <strong>추천 학습 순서</strong><br />
-        Flashcards → Multiple Choice → Spelling<br /><br />
-        틀린 단어는 자동으로 복습 목록에 저장됩니다.
-      </div>
-    </section>
-
-
-    <!-- FLASHCARD -->
-    <section id="flashSection" class="hidden">
-
-      <div class="progress" id="flashProgress"></div>
-
-      <div class="card flashcard" onclick="flipCard()">
-        <div class="word" id="flashWord"></div>
-
-        <div id="flashBack" class="hidden">
-          <div class="meaning" id="flashMeaning"></div>
-          <div class="example" id="flashExample"></div>
-        </div>
-
-        <div class="tap-hint">
-          카드를 눌러 뜻과 예문을 확인하세요.
-        </div>
+      <div class="tap-hint" id="tapHint">
+        카드를 눌러 뜻과 예문을 확인하세요.
       </div>
 
-      <div class="button-row">
-        <button onclick="previousFlash()">← Previous</button>
-        <button class="primary" onclick="nextFlash()">Next →</button>
+    </div>
+
+    <div class="button-row">
+      <button onclick="previousFlash()">← Previous</button>
+      <button class="primary" onclick="nextFlash()">Next →</button>
+    </div>
+
+    <button
+      class="secondary"
+      style="margin-top:10px;"
+      onclick="showLessonHome()"
+    >
+      ← Lesson Menu
+    </button>
+  </section>
+
+
+  <!-- PRACTICE -->
+  <section id="practiceScreen" class="hidden">
+
+    <div class="progress" id="practiceProgress"></div>
+
+    <div class="card">
+      <div class="question-label">Choose the correct meaning.</div>
+
+      <div class="word" id="practiceWord"></div>
+
+      <div id="practiceChoices"></div>
+
+      <div id="practiceFeedback"></div>
+
+      <button
+        id="practiceNext"
+        class="primary hidden"
+        onclick="nextPractice()"
+      >
+        Next →
+      </button>
+    </div>
+  </section>
+
+
+  <!-- PRACTICE COMPLETE -->
+  <section id="practiceCompleteScreen" class="hidden">
+    <div class="card report">
+      <div class="rank-icon">🎉</div>
+      <div class="rank-title">Practice Complete!</div>
+
+      <p id="practiceCompleteText"></p>
+
+      <button class="primary" onclick="showLessonHome()">
+        ← Lesson Menu
+      </button>
+    </div>
+  </section>
+
+
+  <!-- TEST -->
+  <section id="testScreen" class="hidden">
+
+    <div class="progress" id="testProgress"></div>
+
+    <div class="card">
+
+      <div class="question-label" id="testTypeLabel"></div>
+
+      <div id="testQuestion"></div>
+
+      <div id="testChoices"></div>
+
+      <div id="testInputArea"></div>
+
+      <div id="testFeedback"></div>
+
+      <button
+        id="testNext"
+        class="primary hidden"
+        onclick="nextTest()"
+      >
+        Next →
+      </button>
+
+    </div>
+  </section>
+
+
+  <!-- RESULT -->
+  <section id="resultScreen" class="hidden">
+    <div class="card report">
+
+      <div class="rank-icon" id="rankIcon"></div>
+
+      <div class="rank-title" id="rankTitle"></div>
+
+      <div class="score" id="finalScore"></div>
+
+      <div id="accuracy"></div>
+
+      <div class="review-box">
+        <h3>📚 Words to Review</h3>
+        <div id="reviewList"></div>
       </div>
 
       <button
-        class="secondary"
-        style="margin-top: 10px;"
-        onclick="goHome()"
+        class="success"
+        style="margin-top:18px;"
+        onclick="copyResult()"
       >
-        🏠 Home
+        📋 Copy Result
       </button>
-    </section>
 
+      <button
+        class="primary"
+        style="margin-top:10px;"
+        onclick="startTest()"
+      >
+        🔄 Try Again
+      </button>
 
-    <!-- MULTIPLE CHOICE -->
-    <section id="quizSection" class="hidden">
-      <div class="progress" id="quizProgress"></div>
+      <button
+        class="secondary"
+        style="margin-top:10px;"
+        onclick="showLessonHome()"
+      >
+        ← Lesson Menu
+      </button>
 
-      <div class="card">
-        <div class="small-note">뜻을 고르세요.</div>
-        <div class="word" id="quizWord"></div>
+    </div>
+  </section>
 
-        <div id="choices"></div>
-
-        <div id="quizFeedback"></div>
-
-        <button
-          id="quizNext"
-          class="primary hidden"
-          onclick="nextQuiz()"
-        >
-          Next →
-        </button>
-      </div>
-    </section>
-
-
-    <!-- SPELLING -->
-    <section id="spellingSection" class="hidden">
-      <div class="progress" id="spellingProgress"></div>
-
-      <div class="card">
-        <div class="small-note">
-          우리말 뜻을 보고 영어로 쓰세요.
-        </div>
-
-        <div class="meaning" id="spellingMeaning"></div>
-
-        <input
-          id="spellingInput"
-          type="text"
-          autocomplete="off"
-          autocapitalize="none"
-          spellcheck="false"
-          placeholder="Type the word..."
-          onkeydown="handleEnter(event)"
-        />
-
-        <button
-          class="primary"
-          id="checkSpellingButton"
-          onclick="checkSpelling()"
-        >
-          Check
-        </button>
-
-        <div id="spellingFeedback"></div>
-
-        <button
-          id="spellingNext"
-          class="primary hidden"
-          onclick="nextSpelling()"
-        >
-          Next →
-        </button>
-      </div>
-    </section>
-
-
-    <!-- REPORT -->
-    <section id="reportSection" class="hidden">
-      <div class="card report">
-
-        <div class="rank-icon" id="rankIcon"></div>
-
-        <div class="rank-title" id="rankTitle"></div>
-
-        <div class="score" id="finalScore"></div>
-
-        <div id="accuracy"></div>
-
-        <div class="review-box">
-          <h3>📚 Words to Review</h3>
-          <div id="reviewList"></div>
-        </div>
-
-        <button
-          class="success"
-          style="margin-top: 18px;"
-          onclick="copyResult()"
-        >
-          📋 Copy Result
-        </button>
-
-        <button
-          class="primary"
-          style="margin-top: 10px;"
-          onclick="startReview()"
-          id="reportReviewButton"
-        >
-          🔄 Practice Wrong Words
-        </button>
-
-        <button
-          class="secondary"
-          style="margin-top: 10px;"
-          onclick="goHome()"
-        >
-          🏠 Home
-        </button>
-      </div>
-    </section>
-
-  </div>
+</div>
 
 
 <script>
 
 /* =========================================================
-   LESSON 5 VOCABULARY DATA
+   GLOBAL STATE
 ========================================================= */
 
-const vocabulary = [
-  {
-    word: "admiral",
-    meaning: "해군 대장",
-    example: "Yi Sun-sin was a great admiral."
-  },
-  {
-    word: "battle",
-    meaning: "전투",
-    example: "Please stop this battle."
-  },
-  {
-    word: "cliff",
-    meaning: "절벽",
-    example: "The cliff is very high."
-  },
-  {
-    word: "coast",
-    meaning: "해안",
-    example: "My hometown is near the coast."
-  },
-  {
-    word: "experience",
-    meaning: "경험",
-    example: "They had a great experience in Boseong."
-  },
-  {
-    word: "famous",
-    meaning: "유명한",
-    example: "She is a famous singer."
-  },
-  {
-    word: "finally",
-    meaning: "결국",
-    example: "I finally solved the problem."
-  },
-  {
-    word: "fisherman",
-    meaning: "어부",
-    example: "A fisherman is catching fish in the sea."
-  },
-  {
-    word: "huge",
-    meaning: "거대한",
-    example: "They live in a huge house."
-  },
-  {
-    word: "imagine",
-    meaning: "상상하다",
-    example: "I imagine my life in the future."
-  },
-  {
-    word: "magician",
-    meaning: "마술사",
-    example: "The magician changed a picture into a rabbit."
-  },
-  {
-    word: "mean",
-    meaning: "의미하다",
-    example: "What does this word mean?"
-  },
-  {
-    word: "museum",
-    meaning: "박물관, 미술관",
-    example: "There are many interesting paintings in the museum."
-  },
-  {
-    word: "nickname",
-    meaning: "별명",
-    example: "His nickname is ‘Happy Rabbit.’"
-  },
-  {
-    word: "peaceful",
-    meaning: "평화로운",
-    example: "The park is so peaceful."
-  },
-  {
-    word: "radish",
-    meaning: "무",
-    example: "My father grew this radish in the garden."
-  },
-  {
-    word: "spicy",
-    meaning: "매운",
-    example: "Tteokbokki is spicy but delicious."
-  },
-  {
-    word: "squid",
-    meaning: "오징어",
-    example: "The squid is swimming fast in the sea."
-  },
-  {
-    word: "statue",
-    meaning: "조각상",
-    example: "There is a statue of a lion in the park."
-  },
-  {
-    word: "sunset",
-    meaning: "일몰",
-    example: "We watched the sunset together."
-  },
-  {
-    word: "various",
-    meaning: "다양한",
-    example: "This painting shows various colors."
-  },
-  {
-    word: "view",
-    meaning: "경치",
-    example: "You can enjoy a beautiful view here."
-  },
-  {
-    word: "a bit",
-    meaning: "약간",
-    example: "I was a bit late."
-  },
-  {
-    word: "go on a trip",
-    meaning: "여행 가다",
-    example: "I’m going to go on a trip with my friends next week."
-  },
-  {
-    word: "hundreds of",
-    meaning: "수백의",
-    example: "There are hundreds of books in the library."
-  }
-];
+let currentGrade = null;
+let currentLesson = null;
+let vocabulary = [];
 
-
-/* =========================================================
-   GLOBAL VARIABLES
-========================================================= */
-
-let currentList = [];
-let currentIndex = 0;
-
-let wrongWords = new Set();
-
-let quizScore = 0;
-let quizAnswered = false;
-
-let spellingScore = 0;
-let spellingAnswered = false;
-
-let currentMode = "";
+const MAX_LESSON_NUMBER = 20;
 
 
 /* =========================================================
    UTILITIES
 ========================================================= */
 
-function shuffle(array) {
-  const copied = [...array];
-
-  for (let i = copied.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copied[i], copied[j]] = [copied[j], copied[i]];
-  }
-
-  return copied;
+function hideAllScreens() {
+  document.querySelectorAll("section").forEach(section => {
+    section.classList.add("hidden");
+  });
 }
 
-
-function hideAll() {
-  document.getElementById("home").classList.add("hidden");
-  document.getElementById("flashSection").classList.add("hidden");
-  document.getElementById("quizSection").classList.add("hidden");
-  document.getElementById("spellingSection").classList.add("hidden");
-  document.getElementById("reportSection").classList.add("hidden");
-}
-
-
-function goHome() {
-  hideAll();
-  document.getElementById("home").classList.remove("hidden");
+function showScreen(id) {
+  hideAllScreens();
+  document.getElementById(id).classList.remove("hidden");
 
   window.scrollTo({
     top: 0,
@@ -625,373 +540,932 @@ function goHome() {
   });
 }
 
+function shuffle(array) {
+  const copy = [...array];
+
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+
+  return copy;
+}
+
+function normalize(text) {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function highlightTarget(example, word) {
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`(${escaped})`, "gi");
+
+  return escapeHtml(example).replace(
+    regex,
+    "<strong>$1</strong>"
+  );
+}
+
+
+/* =========================================================
+   GRADE / LESSON NAVIGATION
+========================================================= */
+
+async function selectGrade(grade) {
+  currentGrade = grade;
+
+  document.getElementById("gradeTitle").textContent =
+    `Grade ${grade}`;
+
+  document.getElementById("lessonButtons").innerHTML = "";
+  document.getElementById("lessonLoading").classList.remove("hidden");
+
+  showScreen("lessonScreen");
+
+  await discoverLessons();
+}
+
+async function discoverLessons() {
+  const foundLessons = [];
+
+  const checks = [];
+
+  for (let lesson = 1; lesson <= MAX_LESSON_NUMBER; lesson++) {
+    checks.push(checkLessonExists(lesson));
+  }
+
+  const results = await Promise.all(checks);
+
+  results.forEach((exists, index) => {
+    if (exists) {
+      foundLessons.push(index + 1);
+    }
+  });
+
+  renderLessonButtons(foundLessons);
+}
+
+async function checkLessonExists(lesson) {
+  const path =
+    `data/grade${currentGrade}/lesson${lesson}.csv`;
+
+  try {
+    const response = await fetch(path, {
+      cache: "no-store"
+    });
+
+    return response.ok;
+
+  } catch (error) {
+    return false;
+  }
+}
+
+function renderLessonButtons(lessons) {
+  const box = document.getElementById("lessonButtons");
+  const loading = document.getElementById("lessonLoading");
+
+  loading.classList.add("hidden");
+  box.innerHTML = "";
+
+  if (lessons.length === 0) {
+    box.innerHTML = `
+      <div class="small-note">
+        아직 등록된 Lesson이 없습니다.
+      </div>
+    `;
+    return;
+  }
+
+  lessons.forEach(lesson => {
+    const button = document.createElement("button");
+
+    button.textContent = `Lesson ${lesson}`;
+
+    button.onclick = () => loadLesson(lesson);
+
+    box.appendChild(button);
+  });
+}
+
+async function loadLesson(lesson) {
+  currentLesson = lesson;
+
+  const path =
+    `data/grade${currentGrade}/lesson${lesson}.csv`;
+
+  try {
+    const response = await fetch(path, {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("CSV could not be loaded.");
+    }
+
+    const csvText = await response.text();
+
+    vocabulary = parseCSV(csvText);
+
+    if (vocabulary.length === 0) {
+      throw new Error("No vocabulary data found.");
+    }
+
+    document.getElementById("lessonTitle").textContent =
+      `📚 Grade ${currentGrade} · Lesson ${currentLesson}`;
+
+    document.getElementById("lessonSubtitle").textContent =
+      `${vocabulary.length} Words`;
+
+    showLessonHome();
+
+  } catch (error) {
+    alert(
+      "CSV 파일을 불러오지 못했습니다.\n" +
+      "파일 경로와 CSV 형식을 확인해주세요."
+    );
+
+    console.error(error);
+  }
+}
+
+function backToGrades() {
+  currentGrade = null;
+  currentLesson = null;
+  vocabulary = [];
+
+  showScreen("gradeScreen");
+}
+
+function backToLessons() {
+  currentLesson = null;
+  vocabulary = [];
+
+  showScreen("lessonScreen");
+}
+
+function showLessonHome() {
+  showScreen("homeScreen");
+}
+
+
+/* =========================================================
+   CSV PARSER
+========================================================= */
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let insideQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"' && insideQuotes && next === '"') {
+      cell += '"';
+      i++;
+    }
+
+    else if (char === '"') {
+      insideQuotes = !insideQuotes;
+    }
+
+    else if (char === "," && !insideQuotes) {
+      row.push(cell);
+      cell = "";
+    }
+
+    else if (
+      (char === "\n" || char === "\r") &&
+      !insideQuotes
+    ) {
+      if (char === "\r" && next === "\n") {
+        i++;
+      }
+
+      row.push(cell);
+
+      if (row.some(value => value.trim() !== "")) {
+        rows.push(row);
+      }
+
+      row = [];
+      cell = "";
+    }
+
+    else {
+      cell += char;
+    }
+  }
+
+  if (cell.length > 0 || row.length > 0) {
+    row.push(cell);
+    rows.push(row);
+  }
+
+  if (rows.length < 2) {
+    return [];
+  }
+
+  const headers = rows[0].map(header =>
+    header
+      .replace(/^\uFEFF/, "")
+      .trim()
+      .toLowerCase()
+  );
+
+  const wordIndex = headers.indexOf("word");
+  const meaningIndex = headers.indexOf("meaning");
+  const exampleIndex = headers.indexOf("example");
+  const exampleKoIndex = headers.indexOf("example_ko");
+
+  if (
+    wordIndex === -1 ||
+    meaningIndex === -1 ||
+    exampleIndex === -1
+  ) {
+    throw new Error(
+      "CSV headers must include word, meaning, example."
+    );
+  }
+
+  return rows
+    .slice(1)
+    .map(row => ({
+      word: (row[wordIndex] || "").trim(),
+      meaning: (row[meaningIndex] || "").trim(),
+      example: (row[exampleIndex] || "").trim(),
+      example_ko:
+        exampleKoIndex >= 0
+          ? (row[exampleKoIndex] || "").trim()
+          : ""
+    }))
+    .filter(item => item.word && item.meaning);
+}
+
 
 /* =========================================================
    FLASHCARDS
 ========================================================= */
 
-function startFlashcards(list = vocabulary) {
+let flashList = [];
+let flashIndex = 0;
+let flashFlipped = false;
 
-  currentMode = "flash";
-  currentList = [...list];
-  currentIndex = 0;
+function startFlashcards() {
+  flashList = [...vocabulary];
+  flashIndex = 0;
 
-  hideAll();
-  document.getElementById("flashSection").classList.remove("hidden");
-
+  showScreen("flashScreen");
   showFlashcard();
 }
 
-
 function showFlashcard() {
+  flashFlipped = false;
 
-  const item = currentList[currentIndex];
+  const item = flashList[flashIndex];
 
-  document.getElementById("flashWord").textContent = item.word;
-  document.getElementById("flashMeaning").textContent = item.meaning;
-  document.getElementById("flashExample").textContent = item.example;
+  document.getElementById("flashWord").textContent =
+    item.word;
 
-  document.getElementById("flashBack").classList.add("hidden");
+  document.getElementById("flashMeaning").textContent =
+    item.meaning;
+
+  document.getElementById("flashExample").innerHTML =
+    highlightTarget(item.example, item.word);
+
+  document.getElementById("flashExampleKo").textContent =
+    item.example_ko || "";
+
+  document.getElementById("flashBack")
+    .classList.add("hidden");
+
+  document.getElementById("tapHint")
+    .classList.remove("hidden");
 
   document.getElementById("flashProgress").textContent =
-    `${currentIndex + 1} / ${currentList.length}`;
+    `${flashIndex + 1} / ${flashList.length}`;
 }
-
 
 function flipCard() {
-  document.getElementById("flashBack").classList.toggle("hidden");
-}
+  flashFlipped = !flashFlipped;
 
+  const back = document.getElementById("flashBack");
+  const hint = document.getElementById("tapHint");
 
-function nextFlash() {
-
-  if (currentIndex < currentList.length - 1) {
-    currentIndex++;
-    showFlashcard();
+  if (flashFlipped) {
+    back.classList.remove("hidden");
+    hint.classList.add("hidden");
   } else {
-    goHome();
+    back.classList.add("hidden");
+    hint.classList.remove("hidden");
   }
 }
 
+function nextFlash() {
+  if (flashIndex < flashList.length - 1) {
+    flashIndex++;
+    showFlashcard();
+  } else {
+    showLessonHome();
+  }
+}
 
 function previousFlash() {
-
-  if (currentIndex > 0) {
-    currentIndex--;
+  if (flashIndex > 0) {
+    flashIndex--;
     showFlashcard();
   }
 }
 
 
 /* =========================================================
-   MULTIPLE CHOICE
+   PRACTICE
 ========================================================= */
 
-function startQuiz(list = vocabulary) {
+let practiceQueue = [];
+let practiceAttempts = {};
+let practiceCurrent = null;
+let practiceAnswered = false;
+let practiceInitialCount = 0;
 
-  currentMode = "quiz";
+function startPractice() {
+  practiceQueue = shuffle([...vocabulary]);
+  practiceAttempts = {};
+  practiceAnswered = false;
+  practiceInitialCount = vocabulary.length;
 
-  currentList = shuffle(list);
-  currentIndex = 0;
+  vocabulary.forEach(item => {
+    practiceAttempts[item.word] = 0;
+  });
 
-  quizScore = 0;
-  quizAnswered = false;
+  showScreen("practiceScreen");
 
-  wrongWords.clear();
-
-  hideAll();
-  document.getElementById("quizSection").classList.remove("hidden");
-
-  showQuiz();
+  showPracticeQuestion();
 }
 
+function showPracticeQuestion() {
+  if (practiceQueue.length === 0) {
+    finishPractice();
+    return;
+  }
 
-function showQuiz() {
+  practiceAnswered = false;
 
-  quizAnswered = false;
+  practiceCurrent = practiceQueue.shift();
 
-  const item = currentList[currentIndex];
+  practiceAttempts[practiceCurrent.word]++;
 
-  document.getElementById("quizWord").textContent = item.word;
+  const currentAttempt =
+    practiceAttempts[practiceCurrent.word];
 
-  document.getElementById("quizProgress").textContent =
-    `${currentIndex + 1} / ${currentList.length}`;
+  document.getElementById("practiceWord").textContent =
+    practiceCurrent.word;
 
-  document.getElementById("quizFeedback").innerHTML = "";
+  document.getElementById("practiceProgress").textContent =
+    `Attempt ${currentAttempt} of 3`;
 
-  document.getElementById("quizNext").classList.add("hidden");
+  document.getElementById("practiceFeedback").innerHTML = "";
+
+  document.getElementById("practiceNext")
+    .classList.add("hidden");
 
   const otherMeanings = vocabulary
-    .filter(v => v.word !== item.word)
+    .filter(v => v.word !== practiceCurrent.word)
     .map(v => v.meaning);
 
-  const wrongChoices = shuffle(otherMeanings).slice(0, 3);
+  const wrongChoices =
+    shuffle(otherMeanings).slice(0, 3);
 
   const choices = shuffle([
-    item.meaning,
+    practiceCurrent.meaning,
     ...wrongChoices
   ]);
 
-  const choiceBox = document.getElementById("choices");
-  choiceBox.innerHTML = "";
+  const box =
+    document.getElementById("practiceChoices");
+
+  box.innerHTML = "";
 
   choices.forEach(choice => {
-
     const button = document.createElement("button");
 
     button.className = "choice";
     button.textContent = choice;
 
     button.onclick = () =>
-      selectChoice(button, choice, item);
+      answerPractice(button, choice);
 
-    choiceBox.appendChild(button);
+    box.appendChild(button);
   });
 }
 
+function answerPractice(button, selected) {
+  if (practiceAnswered) return;
 
-function selectChoice(button, selected, item) {
+  practiceAnswered = true;
 
-  if (quizAnswered) return;
-
-  quizAnswered = true;
-
-  const buttons = document.querySelectorAll(".choice");
+  const buttons =
+    document.querySelectorAll("#practiceChoices .choice");
 
   buttons.forEach(btn => {
-
     btn.disabled = true;
 
-    if (btn.textContent === item.meaning) {
+    if (btn.textContent === practiceCurrent.meaning) {
       btn.classList.add("correct");
     }
   });
 
-  if (selected === item.meaning) {
-
-    quizScore++;
-
-    document.getElementById("quizFeedback").innerHTML =
-      `<div class="feedback good">⭐ Correct!</div>`;
-
-  } else {
-
-    button.classList.add("wrong");
-    wrongWords.add(item.word);
-
-    document.getElementById("quizFeedback").innerHTML =
-      `<div class="feedback bad">
-         📚 Review: ${item.word} = ${item.meaning}
-       </div>`;
-  }
-
-  document.getElementById("quizNext").classList.remove("hidden");
-}
-
-
-function nextQuiz() {
-
-  currentIndex++;
-
-  if (currentIndex < currentList.length) {
-    showQuiz();
-  } else {
-    showReport(
-      quizScore,
-      currentList.length,
-      "Multiple Choice"
-    );
-  }
-}
-
-
-/* =========================================================
-   SPELLING
-========================================================= */
-
-function startSpelling(list = vocabulary) {
-
-  currentMode = "spelling";
-
-  currentList = shuffle(list);
-  currentIndex = 0;
-
-  spellingScore = 0;
-  spellingAnswered = false;
-
-  wrongWords.clear();
-
-  hideAll();
-  document.getElementById("spellingSection").classList.remove("hidden");
-
-  showSpelling();
-}
-
-
-function showSpelling() {
-
-  spellingAnswered = false;
-
-  const item = currentList[currentIndex];
-
-  document.getElementById("spellingMeaning").textContent =
-    item.meaning;
-
-  document.getElementById("spellingProgress").textContent =
-    `${currentIndex + 1} / ${currentList.length}`;
-
-  const input =
-    document.getElementById("spellingInput");
-
-  input.value = "";
-  input.disabled = false;
-
-  document.getElementById("spellingFeedback").innerHTML = "";
-
-  document.getElementById("checkSpellingButton").classList.remove("hidden");
-  document.getElementById("spellingNext").classList.add("hidden");
-
-  setTimeout(() => {
-    input.focus();
-  }, 100);
-}
-
-
-function normalize(text) {
-  return text.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-
-function checkSpelling() {
-
-  if (spellingAnswered) return;
-
-  const item = currentList[currentIndex];
-
-  const input =
-    document.getElementById("spellingInput");
-
-  const answer = normalize(input.value);
-  const correct = normalize(item.word);
-
-  if (answer === "") return;
-
-  spellingAnswered = true;
-  input.disabled = true;
-
-  if (answer === correct) {
-
-    spellingScore++;
-
-    document.getElementById("spellingFeedback").innerHTML =
+  if (selected === practiceCurrent.meaning) {
+    document.getElementById("practiceFeedback").innerHTML =
       `<div class="feedback good">
         ⭐ Correct!
-       </div>`;
+      </div>`;
 
   } else {
+    button.classList.add("wrong");
 
-    wrongWords.add(item.word);
+    const attempts =
+      practiceAttempts[practiceCurrent.word];
 
-    document.getElementById("spellingFeedback").innerHTML =
-      `<div class="feedback bad">
-        ✏️ Answer: ${item.word}
-       </div>`;
-  }
+    if (attempts < 3) {
+      practiceQueue.push(practiceCurrent);
 
-  document.getElementById("checkSpellingButton").classList.add("hidden");
-  document.getElementById("spellingNext").classList.remove("hidden");
-}
-
-
-function handleEnter(event) {
-
-  if (event.key === "Enter") {
-
-    if (!spellingAnswered) {
-      checkSpelling();
+      document.getElementById("practiceFeedback").innerHTML =
+        `<div class="feedback bad">
+          📚 ${escapeHtml(practiceCurrent.word)}
+          = ${escapeHtml(practiceCurrent.meaning)}
+          <br>
+          You will see this word again.
+        </div>`;
     } else {
-      nextSpelling();
+      document.getElementById("practiceFeedback").innerHTML =
+        `<div class="feedback bad">
+          📚 ${escapeHtml(practiceCurrent.word)}
+          = ${escapeHtml(practiceCurrent.meaning)}
+          <br>
+          Maximum 3 tries reached.
+        </div>`;
     }
   }
+
+  document.getElementById("practiceNext")
+    .classList.remove("hidden");
 }
 
+function nextPractice() {
+  showPracticeQuestion();
+}
 
-function nextSpelling() {
+function finishPractice() {
+  showScreen("practiceCompleteScreen");
 
-  currentIndex++;
-
-  if (currentIndex < currentList.length) {
-
-    showSpelling();
-
-  } else {
-
-    showReport(
-      spellingScore,
-      currentList.length,
-      "Spelling"
-    );
-  }
+  document.getElementById("practiceCompleteText").textContent =
+    `You practiced all ${practiceInitialCount} words.`;
 }
 
 
 /* =========================================================
-   REVIEW MODE
+   TEST YOURSELF
 ========================================================= */
 
-function startReview() {
+const TEST_TYPES = [
+  "en_to_ko",
+  "ko_to_en",
+  "unscramble",
+  "spelling",
+  "example_gap"
+];
 
-  if (wrongWords.size === 0) {
-
-    alert("🎉 복습이 필요한 단어가 아직 없습니다!");
-
-    return;
-  }
-
-  const reviewList = vocabulary.filter(
-    item => wrongWords.has(item.word)
-  );
-
-  startFlashcards(reviewList);
-}
-
-
-/* =========================================================
-   FINAL REPORT
-========================================================= */
-
+let testQuestions = [];
+let testIndex = 0;
+let testScore = 0;
+let testWrongWords = new Set();
+let testAnswered = false;
+let currentTestQuestion = null;
 let lastReportText = "";
 
+function startTest() {
+  testQuestions = buildBalancedTest();
 
-function showReport(score, total, mode) {
+  testIndex = 0;
+  testScore = 0;
+  testWrongWords = new Set();
 
-  hideAll();
+  showScreen("testScreen");
 
-  document.getElementById("reportSection")
+  showTestQuestion();
+}
+
+function buildBalancedTest() {
+  const words = shuffle([...vocabulary]);
+
+  let types = [];
+
+  for (let i = 0; i < words.length; i++) {
+    types.push(
+      TEST_TYPES[i % TEST_TYPES.length]
+    );
+  }
+
+  types = shuffle(types);
+
+  return words.map((item, index) => ({
+    item,
+    type: types[index]
+  }));
+}
+
+function showTestQuestion() {
+  testAnswered = false;
+
+  currentTestQuestion = testQuestions[testIndex];
+
+  const item = currentTestQuestion.item;
+  const type = currentTestQuestion.type;
+
+  document.getElementById("testProgress").textContent =
+    `${testIndex + 1} / ${testQuestions.length}`;
+
+  document.getElementById("testQuestion").innerHTML = "";
+  document.getElementById("testChoices").innerHTML = "";
+  document.getElementById("testInputArea").innerHTML = "";
+  document.getElementById("testFeedback").innerHTML = "";
+
+  document.getElementById("testNext")
+    .classList.add("hidden");
+
+  if (type === "en_to_ko") {
+    renderEnglishToKorean(item);
+  }
+
+  else if (type === "ko_to_en") {
+    renderKoreanToEnglish(item);
+  }
+
+  else if (type === "unscramble") {
+    renderUnscramble(item);
+  }
+
+  else if (type === "spelling") {
+    renderSpelling(item);
+  }
+
+  else if (type === "example_gap") {
+    renderExampleGap(item);
+  }
+}
+
+
+/* ---------- TYPE 1 ---------- */
+
+function renderEnglishToKorean(item) {
+  document.getElementById("testTypeLabel").textContent =
+    "Choose the correct meaning.";
+
+  document.getElementById("testQuestion").innerHTML =
+    `<div class="word">${escapeHtml(item.word)}</div>`;
+
+  const distractors = shuffle(
+    vocabulary
+      .filter(v => v.word !== item.word)
+      .map(v => v.meaning)
+  ).slice(0, 3);
+
+  renderTestChoices(
+    shuffle([item.meaning, ...distractors]),
+    item.meaning
+  );
+}
+
+
+/* ---------- TYPE 2 ---------- */
+
+function renderKoreanToEnglish(item) {
+  document.getElementById("testTypeLabel").textContent =
+    "Choose the correct English word.";
+
+  document.getElementById("testQuestion").innerHTML =
+    `<div class="meaning">${escapeHtml(item.meaning)}</div>`;
+
+  const distractors = shuffle(
+    vocabulary
+      .filter(v => v.word !== item.word)
+      .map(v => v.word)
+  ).slice(0, 3);
+
+  renderTestChoices(
+    shuffle([item.word, ...distractors]),
+    item.word
+  );
+}
+
+
+/* ---------- TYPE 3 ---------- */
+
+function renderUnscramble(item) {
+  document.getElementById("testTypeLabel").textContent =
+    "Unscramble the word.";
+
+  const scrambled = scrambleWord(item.word);
+
+  document.getElementById("testQuestion").innerHTML = `
+    <div class="meaning">
+      ${escapeHtml(item.meaning)}
+    </div>
+
+    <div class="unscramble">
+      ${escapeHtml(scrambled)}
+    </div>
+  `;
+
+  renderTextInput(item.word);
+}
+
+function scrambleWord(word) {
+  const compact = word.replace(/\s/g, "");
+
+  if (compact.length <= 2) {
+    return compact.split("").reverse().join(" ");
+  }
+
+  let scrambled = compact;
+
+  let safety = 0;
+
+  while (
+    normalize(scrambled) === normalize(compact) &&
+    safety < 20
+  ) {
+    scrambled =
+      shuffle(compact.split("")).join("");
+
+    safety++;
+  }
+
+  return scrambled.split("").join(" ");
+}
+
+
+/* ---------- TYPE 4 ---------- */
+
+function renderSpelling(item) {
+  document.getElementById("testTypeLabel").textContent =
+    "Write the English word.";
+
+  document.getElementById("testQuestion").innerHTML =
+    `<div class="meaning">${escapeHtml(item.meaning)}</div>`;
+
+  renderTextInput(item.word);
+}
+
+
+/* ---------- TYPE 5 ---------- */
+
+function renderExampleGap(item) {
+  document.getElementById("testTypeLabel").textContent =
+    "Choose the word that completes the sentence.";
+
+  const escaped =
+    item.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const regex =
+    new RegExp(escaped, "gi");
+
+  const sentence =
+    item.example.replace(regex, "________");
+
+  document.getElementById("testQuestion").innerHTML =
+    `<div class="example" style="border-top:none;">
+      ${escapeHtml(sentence)}
+    </div>`;
+
+  const distractors = shuffle(
+    vocabulary
+      .filter(v => v.word !== item.word)
+      .map(v => v.word)
+  ).slice(0, 3);
+
+  renderTestChoices(
+    shuffle([item.word, ...distractors]),
+    item.word
+  );
+}
+
+
+/* =========================================================
+   TEST ANSWERING
+========================================================= */
+
+function renderTestChoices(choices, correctAnswer) {
+  const box =
+    document.getElementById("testChoices");
+
+  choices.forEach(choice => {
+    const button =
+      document.createElement("button");
+
+    button.className = "choice";
+    button.textContent = choice;
+
+    button.onclick = () =>
+      answerTestChoice(
+        button,
+        choice,
+        correctAnswer
+      );
+
+    box.appendChild(button);
+  });
+}
+
+function answerTestChoice(
+  button,
+  selected,
+  correctAnswer
+) {
+  if (testAnswered) return;
+
+  testAnswered = true;
+
+  const buttons =
+    document.querySelectorAll("#testChoices .choice");
+
+  buttons.forEach(btn => {
+    btn.disabled = true;
+
+    if (
+      normalize(btn.textContent) ===
+      normalize(correctAnswer)
+    ) {
+      btn.classList.add("correct");
+    }
+  });
+
+  const correct =
+    normalize(selected) ===
+    normalize(correctAnswer);
+
+  registerTestResult(correct, button);
+}
+
+function renderTextInput(correctAnswer) {
+  const area =
+    document.getElementById("testInputArea");
+
+  area.innerHTML = `
+    <input
+      id="testTextInput"
+      type="text"
+      autocomplete="off"
+      autocapitalize="none"
+      spellcheck="false"
+      placeholder="Type your answer..."
+    >
+
+    <button
+      id="testCheckButton"
+      class="primary"
+      onclick="answerTestInput(
+        ${JSON.stringify(correctAnswer)}
+      )"
+    >
+      Check
+    </button>
+  `;
+
+  const input =
+    document.getElementById("testTextInput");
+
+  input.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      if (!testAnswered) {
+        answerTestInput(correctAnswer);
+      } else {
+        nextTest();
+      }
+    }
+  });
+
+  setTimeout(() => input.focus(), 100);
+}
+
+function answerTestInput(correctAnswer) {
+  if (testAnswered) return;
+
+  const input =
+    document.getElementById("testTextInput");
+
+  const answer = input.value;
+
+  if (normalize(answer) === "") return;
+
+  testAnswered = true;
+  input.disabled = true;
+
+  const checkButton =
+    document.getElementById("testCheckButton");
+
+  if (checkButton) {
+    checkButton.classList.add("hidden");
+  }
+
+  const correct =
+    normalize(answer) ===
+    normalize(correctAnswer);
+
+  registerTestResult(correct);
+}
+
+function registerTestResult(correct, wrongButton = null) {
+  const item =
+    currentTestQuestion.item;
+
+  if (correct) {
+    testScore++;
+
+    document.getElementById("testFeedback").innerHTML =
+      `<div class="feedback good">
+        ⭐ Correct!
+      </div>`;
+
+  } else {
+    testWrongWords.add(item.word);
+
+    if (wrongButton) {
+      wrongButton.classList.add("wrong");
+    }
+
+    document.getElementById("testFeedback").innerHTML =
+      `<div class="feedback bad">
+        📚 Answer: ${escapeHtml(item.word)}
+      </div>`;
+  }
+
+  document.getElementById("testNext")
     .classList.remove("hidden");
+}
+
+function nextTest() {
+  testIndex++;
+
+  if (testIndex < testQuestions.length) {
+    showTestQuestion();
+  } else {
+    showResult();
+  }
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+function showResult() {
+  showScreen("resultScreen");
+
+  const total =
+    testQuestions.length;
 
   const percent =
-    Math.round((score / total) * 100);
+    Math.round((testScore / total) * 100);
 
-  let icon = "";
-  let title = "";
+  let icon;
+  let title;
 
   if (percent === 100) {
     icon = "👑";
     title = "Vocabulary Master!";
   }
+
   else if (percent >= 90) {
     icon = "🌟";
     title = "Vocabulary Star!";
   }
+
   else if (percent >= 80) {
     icon = "⭐";
     title = "Great Job!";
   }
+
   else if (percent >= 70) {
     icon = "💪";
     title = "Almost There!";
   }
+
   else {
     icon = "🌱";
     title = "Keep Growing!";
@@ -1004,7 +1478,7 @@ function showReport(score, total, mode) {
     title;
 
   document.getElementById("finalScore").textContent =
-    `${score} / ${total}`;
+    `${testScore} / ${total}`;
 
   document.getElementById("accuracy").textContent =
     `🎯 Accuracy: ${percent}%`;
@@ -1012,67 +1486,59 @@ function showReport(score, total, mode) {
   const reviewBox =
     document.getElementById("reviewList");
 
-  const reportReviewButton =
-    document.getElementById("reportReviewButton");
+  const reviewWords =
+    [...testWrongWords];
 
-  if (wrongWords.size === 0) {
-
+  if (reviewWords.length === 0) {
     reviewBox.innerHTML =
-      `🎉 Perfect! No words to review.`;
-
-    reportReviewButton.classList.add("hidden");
-
+      "🎉 Perfect! No words to review.";
   } else {
-
     reviewBox.innerHTML =
-      [...wrongWords]
+      reviewWords
         .map(word =>
-          `<div class="review-word">• ${word}</div>`
+          `<div class="review-word">
+            • ${escapeHtml(word)}
+          </div>`
         )
         .join("");
-
-    reportReviewButton.classList.remove("hidden");
   }
 
-
   const reviewText =
-    wrongWords.size === 0
+    reviewWords.length === 0
       ? "None 🎉"
-      : [...wrongWords].join(", ");
-
+      : reviewWords.join(", ");
 
   lastReportText =
 `${icon} ${title}
-📚 Lesson 5 Vocabulary
-🎯 ${mode}
-
-⭐ Score: ${score}/${total}
+📚 Grade ${currentGrade} · Lesson ${currentLesson}
+⭐ Score: ${testScore}/${total}
 🎯 Accuracy: ${percent}%
 
 📖 Words to Review:
 ${reviewText}`;
-
 }
 
 
 /* =========================================================
-   COPY REPORT
+   COPY
 ========================================================= */
 
 async function copyResult() {
-
   try {
+    await navigator.clipboard.writeText(
+      lastReportText
+    );
 
-    await navigator.clipboard.writeText(lastReportText);
-
-    alert("📋 결과가 복사되었습니다!\nPadlet에 붙여넣으세요.");
+    alert(
+      "📋 결과가 복사되었습니다!\nPadlet에 붙여넣으세요."
+    );
 
   } catch (error) {
-
     const textarea =
       document.createElement("textarea");
 
-    textarea.value = lastReportText;
+    textarea.value =
+      lastReportText;
 
     document.body.appendChild(textarea);
 
