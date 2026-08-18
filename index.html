@@ -10,8 +10,13 @@
       box-sizing: border-box;
     }
 
+    html {
+      min-height: 100%;
+    }
+
     body {
       margin: 0;
+      min-height: 100vh;
       font-family:
         -apple-system, BlinkMacSystemFont, "Segoe UI",
         "Noto Sans KR", Arial, sans-serif;
@@ -19,10 +24,18 @@
       color: #222;
     }
 
+    .page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
     .container {
+      width: 100%;
       max-width: 620px;
       margin: 0 auto;
-      padding: 20px 16px 50px;
+      padding: 20px 16px 30px;
+      flex: 1;
     }
 
     h1 {
@@ -209,6 +222,19 @@
       color: #c92a2a;
     }
 
+    /* Practice 오답 정답 표시:
+       아래 안내 문구보다 정확히 2pt 크게 */
+    .practice-answer {
+      font-size: 14pt;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .practice-note {
+      font-size: 12pt;
+      font-weight: 700;
+    }
+
     .button-row {
       display: flex;
       gap: 10px;
@@ -247,6 +273,28 @@
       padding: 5px 0;
     }
 
+    .missed-card {
+      margin-top: 16px;
+    }
+
+    .missed-list {
+      background: #f7f8fb;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin: 10px 0 14px;
+    }
+
+    .missed-word {
+      padding: 5px 0;
+      font-weight: 600;
+    }
+
+    .empty-missed {
+      color: #777;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
     .loading {
       text-align: center;
       color: #777;
@@ -269,6 +317,15 @@
       margin-bottom: 8px;
     }
 
+    footer {
+      width: 100%;
+      padding: 12px 16px 20px;
+      text-align: center;
+      color: #999;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
     @media (max-width: 430px) {
       .menu-grid {
         grid-template-columns: 1fr;
@@ -286,10 +343,14 @@
 </head>
 
 <body>
+
+<div class="page-wrapper">
+
 <div class="container">
 
   <!-- GRADE SELECT -->
   <section id="gradeScreen">
+
     <h1>📚 Vocabulary Trainer</h1>
     <div class="subtitle">Choose Your Grade</div>
 
@@ -298,35 +359,42 @@
       <button onclick="selectGrade(2)">Grade 2</button>
       <button onclick="selectGrade(3)">Grade 3</button>
     </div>
+
   </section>
 
 
   <!-- LESSON SELECT -->
   <section id="lessonScreen" class="hidden">
+
     <h1 id="gradeTitle"></h1>
     <div class="subtitle">Choose a Lesson</div>
 
     <div class="card">
+
       <div id="lessonLoading" class="loading">
         🔎 Looking for lessons...
       </div>
 
       <div id="lessonButtons" class="single-grid"></div>
+
     </div>
 
     <button class="secondary" onclick="backToGrades()">
       ← Back to Grade
     </button>
+
   </section>
 
 
-  <!-- HOME -->
+  <!-- LESSON HOME -->
   <section id="homeScreen" class="hidden">
+
     <h1 id="lessonTitle"></h1>
     <div class="subtitle" id="lessonSubtitle"></div>
 
     <div class="card">
       <div class="menu-grid">
+
         <button onclick="startFlashcards()">
           🃏 Flashcards
         </button>
@@ -338,6 +406,7 @@
         <button onclick="startTest()">
           👑 Test Yourself
         </button>
+
       </div>
     </div>
 
@@ -346,9 +415,31 @@
       Flashcards → Practice → Test Yourself
     </div>
 
+
+    <!-- FREQUENTLY MISSED WORDS -->
+    <div class="card missed-card">
+
+      <div class="section-title">
+        🔄 Frequently Missed Words
+      </div>
+
+      <div id="missedWordsContent"></div>
+
+      <button
+        id="practiceMissedButton"
+        class="primary hidden"
+        onclick="practiceFrequentlyMissed()"
+      >
+        🎯 Practice These Words
+      </button>
+
+    </div>
+
+
     <button class="secondary" onclick="backToLessons()">
       ← Lessons
     </button>
+
   </section>
 
 
@@ -362,12 +453,20 @@
       <div class="word" id="flashWord"></div>
 
       <div id="flashBack" class="hidden">
+
         <div class="meaning" id="flashMeaning"></div>
 
         <div class="example">
+
           <div id="flashExample"></div>
-          <div class="example-ko" id="flashExampleKo"></div>
+
+          <div
+            class="example-ko"
+            id="flashExampleKo"
+          ></div>
+
         </div>
+
       </div>
 
       <div class="tap-hint" id="tapHint">
@@ -377,8 +476,18 @@
     </div>
 
     <div class="button-row">
-      <button onclick="previousFlash()">← Previous</button>
-      <button class="primary" onclick="nextFlash()">Next →</button>
+
+      <button onclick="previousFlash()">
+        ← Previous
+      </button>
+
+      <button
+        class="primary"
+        onclick="nextFlash()"
+      >
+        Next →
+      </button>
+
     </div>
 
     <button
@@ -388,6 +497,7 @@
     >
       ← Lesson Menu
     </button>
+
   </section>
 
 
@@ -397,9 +507,15 @@
     <div class="progress" id="practiceProgress"></div>
 
     <div class="card">
-      <div class="question-label">Choose the correct meaning.</div>
 
-      <div class="word" id="practiceWord"></div>
+      <div class="question-label">
+        Choose the correct meaning.
+      </div>
+
+      <div
+        class="word"
+        id="practiceWord"
+      ></div>
 
       <div id="practiceChoices"></div>
 
@@ -412,22 +528,37 @@
       >
         Next →
       </button>
+
     </div>
+
   </section>
 
 
   <!-- PRACTICE COMPLETE -->
-  <section id="practiceCompleteScreen" class="hidden">
+  <section
+    id="practiceCompleteScreen"
+    class="hidden"
+  >
+
     <div class="card report">
+
       <div class="rank-icon">🎉</div>
-      <div class="rank-title">Practice Complete!</div>
+
+      <div class="rank-title">
+        Practice Complete!
+      </div>
 
       <p id="practiceCompleteText"></p>
 
-      <button class="primary" onclick="showLessonHome()">
+      <button
+        class="primary"
+        onclick="showLessonHome()"
+      >
         ← Lesson Menu
       </button>
+
     </div>
+
   </section>
 
 
@@ -438,7 +569,10 @@
 
     <div class="card">
 
-      <div class="question-label" id="testTypeLabel"></div>
+      <div
+        class="question-label"
+        id="testTypeLabel"
+      ></div>
 
       <div id="testQuestion"></div>
 
@@ -457,24 +591,38 @@
       </button>
 
     </div>
+
   </section>
 
 
   <!-- RESULT -->
   <section id="resultScreen" class="hidden">
+
     <div class="card report">
 
-      <div class="rank-icon" id="rankIcon"></div>
+      <div
+        class="rank-icon"
+        id="rankIcon"
+      ></div>
 
-      <div class="rank-title" id="rankTitle"></div>
+      <div
+        class="rank-title"
+        id="rankTitle"
+      ></div>
 
-      <div class="score" id="finalScore"></div>
+      <div
+        class="score"
+        id="finalScore"
+      ></div>
 
       <div id="accuracy"></div>
 
       <div class="review-box">
+
         <h3>📚 Words to Review</h3>
+
         <div id="reviewList"></div>
+
       </div>
 
       <button
@@ -502,7 +650,16 @@
       </button>
 
     </div>
+
   </section>
+
+</div>
+
+
+<footer>
+  Developed by sungminpark@gne.go.kr with ChatGPT, 2026
+  (Source: 중학교 영어(천재교과서, 이상기, 2026))
+</footer>
 
 </div>
 
@@ -520,61 +677,132 @@ let vocabulary = [];
 const MAX_LESSON_NUMBER = 20;
 
 
+/* Frequently Missed Words
+
+   Practice:
+   같은 단어를 누적 2회 이상 틀리면 등록
+
+   Test Yourself:
+   1회라도 틀리면 등록
+*/
+
+let frequentlyMissedWords = new Set();
+let practiceWrongHistory = {};
+
+
 /* =========================================================
    UTILITIES
 ========================================================= */
 
 function hideAllScreens() {
-  document.querySelectorAll("section").forEach(section => {
+
+  document.querySelectorAll(
+    ".container > section"
+  ).forEach(section => {
+
     section.classList.add("hidden");
+
   });
+
 }
 
+
 function showScreen(id) {
+
   hideAllScreens();
-  document.getElementById(id).classList.remove("hidden");
+
+  document
+    .getElementById(id)
+    .classList.remove("hidden");
 
   window.scrollTo({
     top: 0,
     behavior: "smooth"
   });
+
 }
 
+
 function shuffle(array) {
+
   const copy = [...array];
 
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
+  for (
+    let i = copy.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(Math.random() * (i + 1));
+
+    [copy[i], copy[j]] =
+      [copy[j], copy[i]];
+
   }
 
   return copy;
+
 }
 
+
 function normalize(text) {
-  return text
+
+  return String(text)
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
+
 }
 
+
 function escapeHtml(text) {
+
   return String(text)
+
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+
 }
 
-function highlightTarget(example, word) {
-  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const regex = new RegExp(`(${escaped})`, "gi");
 
-  return escapeHtml(example).replace(
+function escapeRegExp(text) {
+
+  return String(text)
+    .replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+
+}
+
+
+/* Example의 목표 어휘 굵게 표시 */
+
+function highlightTarget(example, word) {
+
+  const safeExample =
+    escapeHtml(example);
+
+  const escapedWord =
+    escapeRegExp(
+      escapeHtml(word)
+    );
+
+  const regex =
+    new RegExp(
+      `(${escapedWord})`,
+      "gi"
+    );
+
+  return safeExample.replace(
     regex,
     "<strong>$1</strong>"
   );
+
 }
 
 
@@ -583,140 +811,349 @@ function highlightTarget(example, word) {
 ========================================================= */
 
 async function selectGrade(grade) {
+
   currentGrade = grade;
 
-  document.getElementById("gradeTitle").textContent =
-    `Grade ${grade}`;
+  document
+    .getElementById("gradeTitle")
+    .textContent =
+      `Grade ${grade}`;
 
-  document.getElementById("lessonButtons").innerHTML = "";
-  document.getElementById("lessonLoading").classList.remove("hidden");
+  document
+    .getElementById("lessonButtons")
+    .innerHTML = "";
+
+  document
+    .getElementById("lessonLoading")
+    .classList.remove("hidden");
 
   showScreen("lessonScreen");
 
   await discoverLessons();
+
 }
 
+
 async function discoverLessons() {
-  const foundLessons = [];
 
   const checks = [];
 
-  for (let lesson = 1; lesson <= MAX_LESSON_NUMBER; lesson++) {
-    checks.push(checkLessonExists(lesson));
+  for (
+    let lesson = 1;
+    lesson <= MAX_LESSON_NUMBER;
+    lesson++
+  ) {
+
+    checks.push(
+      checkLessonExists(lesson)
+    );
+
   }
 
-  const results = await Promise.all(checks);
+  const results =
+    await Promise.all(checks);
 
-  results.forEach((exists, index) => {
-    if (exists) {
-      foundLessons.push(index + 1);
+  const foundLessons = [];
+
+  results.forEach(
+    (exists, index) => {
+
+      if (exists) {
+        foundLessons.push(index + 1);
+      }
+
     }
-  });
+  );
 
   renderLessonButtons(foundLessons);
+
 }
 
+
 async function checkLessonExists(lesson) {
+
   const path =
     `data/grade${currentGrade}/lesson${lesson}.csv`;
 
   try {
-    const response = await fetch(path, {
-      cache: "no-store"
-    });
+
+    const response =
+      await fetch(
+        path,
+        { cache: "no-store" }
+      );
 
     return response.ok;
 
-  } catch (error) {
-    return false;
   }
+
+  catch (error) {
+
+    return false;
+
+  }
+
 }
 
+
 function renderLessonButtons(lessons) {
-  const box = document.getElementById("lessonButtons");
-  const loading = document.getElementById("lessonLoading");
+
+  const box =
+    document.getElementById(
+      "lessonButtons"
+    );
+
+  const loading =
+    document.getElementById(
+      "lessonLoading"
+    );
 
   loading.classList.add("hidden");
+
   box.innerHTML = "";
 
   if (lessons.length === 0) {
+
     box.innerHTML = `
       <div class="small-note">
         아직 등록된 Lesson이 없습니다.
       </div>
     `;
+
     return;
+
   }
 
   lessons.forEach(lesson => {
-    const button = document.createElement("button");
 
-    button.textContent = `Lesson ${lesson}`;
+    const button =
+      document.createElement("button");
 
-    button.onclick = () => loadLesson(lesson);
+    button.textContent =
+      `Lesson ${lesson}`;
+
+    button.addEventListener(
+      "click",
+      () => loadLesson(lesson)
+    );
 
     box.appendChild(button);
+
   });
+
 }
 
+
 async function loadLesson(lesson) {
+
   currentLesson = lesson;
 
   const path =
     `data/grade${currentGrade}/lesson${lesson}.csv`;
 
   try {
-    const response = await fetch(path, {
-      cache: "no-store"
-    });
+
+    const response =
+      await fetch(
+        path,
+        { cache: "no-store" }
+      );
 
     if (!response.ok) {
-      throw new Error("CSV could not be loaded.");
+
+      throw new Error(
+        "CSV could not be loaded."
+      );
+
     }
 
-    const csvText = await response.text();
+    const csvText =
+      await response.text();
 
-    vocabulary = parseCSV(csvText);
+    vocabulary =
+      parseCSV(csvText);
 
     if (vocabulary.length === 0) {
-      throw new Error("No vocabulary data found.");
+
+      throw new Error(
+        "No vocabulary data found."
+      );
+
     }
 
-    document.getElementById("lessonTitle").textContent =
-      `📚 Grade ${currentGrade} · Lesson ${currentLesson}`;
 
-    document.getElementById("lessonSubtitle").textContent =
-      `${vocabulary.length} Words`;
+    /* Lesson을 새로 열면
+       오답 기록도 새로 시작 */
+
+    frequentlyMissedWords =
+      new Set();
+
+    practiceWrongHistory = {};
+
+
+    document
+      .getElementById(
+        "lessonTitle"
+      )
+      .textContent =
+        `📚 Grade ${currentGrade} · Lesson ${currentLesson}`;
+
+
+    document
+      .getElementById(
+        "lessonSubtitle"
+      )
+      .textContent =
+        `${vocabulary.length} Words`;
+
 
     showLessonHome();
 
-  } catch (error) {
+  }
+
+  catch (error) {
+
     alert(
       "CSV 파일을 불러오지 못했습니다.\n" +
       "파일 경로와 CSV 형식을 확인해주세요."
     );
 
     console.error(error);
+
   }
+
 }
+
 
 function backToGrades() {
+
   currentGrade = null;
   currentLesson = null;
+
   vocabulary = [];
+
+  frequentlyMissedWords =
+    new Set();
+
+  practiceWrongHistory = {};
 
   showScreen("gradeScreen");
+
 }
+
 
 function backToLessons() {
+
   currentLesson = null;
+
   vocabulary = [];
 
+  frequentlyMissedWords =
+    new Set();
+
+  practiceWrongHistory = {};
+
   showScreen("lessonScreen");
+
 }
 
+
 function showLessonHome() {
+
+  updateFrequentlyMissedDisplay();
+
   showScreen("homeScreen");
+
+}
+
+
+/* =========================================================
+   FREQUENTLY MISSED WORDS
+========================================================= */
+
+function addFrequentlyMissed(word) {
+
+  frequentlyMissedWords.add(word);
+
+}
+
+
+function updateFrequentlyMissedDisplay() {
+
+  const content =
+    document.getElementById(
+      "missedWordsContent"
+    );
+
+  const button =
+    document.getElementById(
+      "practiceMissedButton"
+    );
+
+
+  const words =
+    vocabulary.filter(item =>
+      frequentlyMissedWords.has(
+        item.word
+      )
+    );
+
+
+  if (words.length === 0) {
+
+    content.innerHTML = `
+      <div class="empty-missed">
+        No frequently missed words yet. 🎉
+      </div>
+    `;
+
+    button.classList.add("hidden");
+
+    return;
+
+  }
+
+
+  content.innerHTML = `
+    <div class="missed-list">
+      ${words
+        .map(item =>
+          `<div class="missed-word">
+             • ${escapeHtml(item.word)}
+           </div>`
+        )
+        .join("")
+      }
+    </div>
+  `;
+
+
+  button.classList.remove("hidden");
+
+}
+
+
+function practiceFrequentlyMissed() {
+
+  const list =
+    vocabulary.filter(item =>
+      frequentlyMissedWords.has(
+        item.word
+      )
+    );
+
+  if (list.length === 0) {
+
+    alert(
+      "복습할 단어가 아직 없습니다."
+    );
+
+    return;
+
+  }
+
+  startPractice(list);
+
 }
 
 
@@ -725,95 +1162,181 @@ function showLessonHome() {
 ========================================================= */
 
 function parseCSV(text) {
+
   const rows = [];
+
   let row = [];
   let cell = "";
   let insideQuotes = false;
 
-  for (let i = 0; i < text.length; i++) {
+
+  for (
+    let i = 0;
+    i < text.length;
+    i++
+  ) {
+
     const char = text[i];
     const next = text[i + 1];
 
-    if (char === '"' && insideQuotes && next === '"') {
+
+    if (
+      char === '"' &&
+      insideQuotes &&
+      next === '"'
+    ) {
+
       cell += '"';
       i++;
+
     }
 
     else if (char === '"') {
-      insideQuotes = !insideQuotes;
-    }
 
-    else if (char === "," && !insideQuotes) {
-      row.push(cell);
-      cell = "";
+      insideQuotes =
+        !insideQuotes;
+
     }
 
     else if (
-      (char === "\n" || char === "\r") &&
+      char === "," &&
       !insideQuotes
     ) {
-      if (char === "\r" && next === "\n") {
+
+      row.push(cell);
+      cell = "";
+
+    }
+
+    else if (
+      (
+        char === "\n" ||
+        char === "\r"
+      ) &&
+      !insideQuotes
+    ) {
+
+      if (
+        char === "\r" &&
+        next === "\n"
+      ) {
+
         i++;
+
       }
 
       row.push(cell);
 
-      if (row.some(value => value.trim() !== "")) {
+      if (
+        row.some(
+          value =>
+            value.trim() !== ""
+        )
+      ) {
+
         rows.push(row);
+
       }
 
       row = [];
       cell = "";
+
     }
 
     else {
+
       cell += char;
+
     }
+
   }
 
-  if (cell.length > 0 || row.length > 0) {
+
+  if (
+    cell.length > 0 ||
+    row.length > 0
+  ) {
+
     row.push(cell);
     rows.push(row);
+
   }
+
 
   if (rows.length < 2) {
+
     return [];
+
   }
 
-  const headers = rows[0].map(header =>
-    header
-      .replace(/^\uFEFF/, "")
-      .trim()
-      .toLowerCase()
-  );
 
-  const wordIndex = headers.indexOf("word");
-  const meaningIndex = headers.indexOf("meaning");
-  const exampleIndex = headers.indexOf("example");
-  const exampleKoIndex = headers.indexOf("example_ko");
+  const headers =
+    rows[0].map(header =>
+      header
+        .replace(/^\uFEFF/, "")
+        .trim()
+        .toLowerCase()
+    );
+
+
+  const wordIndex =
+    headers.indexOf("word");
+
+  const meaningIndex =
+    headers.indexOf("meaning");
+
+  const exampleIndex =
+    headers.indexOf("example");
+
+  const exampleKoIndex =
+    headers.indexOf("example_ko");
+
 
   if (
     wordIndex === -1 ||
     meaningIndex === -1 ||
     exampleIndex === -1
   ) {
+
     throw new Error(
       "CSV headers must include word, meaning, example."
     );
+
   }
 
+
   return rows
+
     .slice(1)
+
     .map(row => ({
-      word: (row[wordIndex] || "").trim(),
-      meaning: (row[meaningIndex] || "").trim(),
-      example: (row[exampleIndex] || "").trim(),
+
+      word:
+        (row[wordIndex] || "")
+          .trim(),
+
+      meaning:
+        (row[meaningIndex] || "")
+          .trim(),
+
+      example:
+        (row[exampleIndex] || "")
+          .trim(),
+
       example_ko:
         exampleKoIndex >= 0
-          ? (row[exampleKoIndex] || "").trim()
+          ? (row[exampleKoIndex] || "")
+              .trim()
           : ""
+
     }))
-    .filter(item => item.word && item.meaning);
+
+    .filter(
+      item =>
+        item.word &&
+        item.meaning
+    );
+
 }
 
 
@@ -825,70 +1348,164 @@ let flashList = [];
 let flashIndex = 0;
 let flashFlipped = false;
 
+
 function startFlashcards() {
-  flashList = [...vocabulary];
+
+  flashList =
+    [...vocabulary];
+
   flashIndex = 0;
 
   showScreen("flashScreen");
+
   showFlashcard();
+
 }
+
 
 function showFlashcard() {
+
   flashFlipped = false;
 
-  const item = flashList[flashIndex];
+  const item =
+    flashList[flashIndex];
 
-  document.getElementById("flashWord").textContent =
-    item.word;
 
-  document.getElementById("flashMeaning").textContent =
-    item.meaning;
+  document
+    .getElementById(
+      "flashWord"
+    )
+    .textContent =
+      item.word;
 
-  document.getElementById("flashExample").innerHTML =
-    highlightTarget(item.example, item.word);
 
-  document.getElementById("flashExampleKo").textContent =
-    item.example_ko || "";
+  document
+    .getElementById(
+      "flashMeaning"
+    )
+    .textContent =
+      item.meaning;
 
-  document.getElementById("flashBack")
+
+  document
+    .getElementById(
+      "flashExample"
+    )
+    .innerHTML =
+      highlightTarget(
+        item.example,
+        item.word
+      );
+
+
+  document
+    .getElementById(
+      "flashExampleKo"
+    )
+    .textContent =
+      item.example_ko || "";
+
+
+  document
+    .getElementById(
+      "flashBack"
+    )
     .classList.add("hidden");
 
-  document.getElementById("tapHint")
+
+  document
+    .getElementById(
+      "tapHint"
+    )
     .classList.remove("hidden");
 
-  document.getElementById("flashProgress").textContent =
-    `${flashIndex + 1} / ${flashList.length}`;
+
+  document
+    .getElementById(
+      "flashProgress"
+    )
+    .textContent =
+      `${flashIndex + 1} / ${flashList.length}`;
+
 }
+
 
 function flipCard() {
-  flashFlipped = !flashFlipped;
 
-  const back = document.getElementById("flashBack");
-  const hint = document.getElementById("tapHint");
+  flashFlipped =
+    !flashFlipped;
+
+
+  const back =
+    document.getElementById(
+      "flashBack"
+    );
+
+  const hint =
+    document.getElementById(
+      "tapHint"
+    );
+
 
   if (flashFlipped) {
-    back.classList.remove("hidden");
-    hint.classList.add("hidden");
-  } else {
-    back.classList.add("hidden");
-    hint.classList.remove("hidden");
+
+    back.classList.remove(
+      "hidden"
+    );
+
+    hint.classList.add(
+      "hidden"
+    );
+
   }
+
+  else {
+
+    back.classList.add(
+      "hidden"
+    );
+
+    hint.classList.remove(
+      "hidden"
+    );
+
+  }
+
 }
+
 
 function nextFlash() {
-  if (flashIndex < flashList.length - 1) {
+
+  if (
+    flashIndex <
+    flashList.length - 1
+  ) {
+
     flashIndex++;
+
     showFlashcard();
-  } else {
-    showLessonHome();
+
   }
+
+  else {
+
+    showLessonHome();
+
+  }
+
 }
 
+
 function previousFlash() {
+
   if (flashIndex > 0) {
+
     flashIndex--;
+
     showFlashcard();
+
   }
+
 }
 
 
@@ -898,143 +1515,386 @@ function previousFlash() {
 
 let practiceQueue = [];
 let practiceAttempts = {};
+
 let practiceCurrent = null;
 let practiceAnswered = false;
+
 let practiceInitialCount = 0;
 
-function startPractice() {
-  practiceQueue = shuffle([...vocabulary]);
-  practiceAttempts = {};
-  practiceAnswered = false;
-  practiceInitialCount = vocabulary.length;
 
-  vocabulary.forEach(item => {
-    practiceAttempts[item.word] = 0;
+function startPractice(
+  list = vocabulary
+) {
+
+  practiceQueue =
+    shuffle([...list]);
+
+  practiceAttempts = {};
+
+  practiceAnswered = false;
+
+  practiceInitialCount =
+    list.length;
+
+
+  list.forEach(item => {
+
+    practiceAttempts[
+      item.word
+    ] = 0;
+
+    if (
+      practiceWrongHistory[
+        item.word
+      ] === undefined
+    ) {
+
+      practiceWrongHistory[
+        item.word
+      ] = 0;
+
+    }
+
   });
 
-  showScreen("practiceScreen");
+
+  showScreen(
+    "practiceScreen"
+  );
 
   showPracticeQuestion();
+
 }
 
+
 function showPracticeQuestion() {
-  if (practiceQueue.length === 0) {
+
+  if (
+    practiceQueue.length === 0
+  ) {
+
     finishPractice();
+
     return;
+
   }
+
 
   practiceAnswered = false;
 
-  practiceCurrent = practiceQueue.shift();
+  practiceCurrent =
+    practiceQueue.shift();
 
-  practiceAttempts[practiceCurrent.word]++;
+
+  practiceAttempts[
+    practiceCurrent.word
+  ]++;
+
 
   const currentAttempt =
-    practiceAttempts[practiceCurrent.word];
+    practiceAttempts[
+      practiceCurrent.word
+    ];
 
-  document.getElementById("practiceWord").textContent =
-    practiceCurrent.word;
 
-  document.getElementById("practiceProgress").textContent =
-    `Attempt ${currentAttempt} of 3`;
+  document
+    .getElementById(
+      "practiceWord"
+    )
+    .textContent =
+      practiceCurrent.word;
 
-  document.getElementById("practiceFeedback").innerHTML = "";
 
-  document.getElementById("practiceNext")
-    .classList.add("hidden");
+  document
+    .getElementById(
+      "practiceProgress"
+    )
+    .textContent =
+      `Attempt ${currentAttempt} of 3`;
 
-  const otherMeanings = vocabulary
-    .filter(v => v.word !== practiceCurrent.word)
-    .map(v => v.meaning);
+
+  document
+    .getElementById(
+      "practiceFeedback"
+    )
+    .innerHTML = "";
+
+
+  document
+    .getElementById(
+      "practiceNext"
+    )
+    .classList.add(
+      "hidden"
+    );
+
+
+  const otherMeanings =
+    vocabulary
+
+      .filter(
+        v =>
+          v.word !==
+          practiceCurrent.word
+      )
+
+      .map(v => v.meaning);
+
 
   const wrongChoices =
-    shuffle(otherMeanings).slice(0, 3);
+    shuffle(
+      otherMeanings
+    ).slice(0, 3);
 
-  const choices = shuffle([
-    practiceCurrent.meaning,
-    ...wrongChoices
-  ]);
+
+  const choices =
+    shuffle([
+      practiceCurrent.meaning,
+      ...wrongChoices
+    ]);
+
 
   const box =
-    document.getElementById("practiceChoices");
+    document.getElementById(
+      "practiceChoices"
+    );
 
   box.innerHTML = "";
 
+
   choices.forEach(choice => {
-    const button = document.createElement("button");
 
-    button.className = "choice";
-    button.textContent = choice;
+    const button =
+      document.createElement(
+        "button"
+      );
 
-    button.onclick = () =>
-      answerPractice(button, choice);
+    button.className =
+      "choice";
+
+    button.textContent =
+      choice;
+
+
+    button.addEventListener(
+      "click",
+      () =>
+        answerPractice(
+          button,
+          choice
+        )
+    );
+
 
     box.appendChild(button);
+
   });
+
 }
 
-function answerPractice(button, selected) {
-  if (practiceAnswered) return;
+
+function answerPractice(
+  button,
+  selected
+) {
+
+  if (practiceAnswered) {
+
+    return;
+
+  }
+
 
   practiceAnswered = true;
 
+
   const buttons =
-    document.querySelectorAll("#practiceChoices .choice");
+    document.querySelectorAll(
+      "#practiceChoices .choice"
+    );
+
 
   buttons.forEach(btn => {
+
     btn.disabled = true;
 
-    if (btn.textContent === practiceCurrent.meaning) {
-      btn.classList.add("correct");
+    if (
+      btn.textContent ===
+      practiceCurrent.meaning
+    ) {
+
+      btn.classList.add(
+        "correct"
+      );
+
     }
+
   });
 
-  if (selected === practiceCurrent.meaning) {
-    document.getElementById("practiceFeedback").innerHTML =
-      `<div class="feedback good">
-        ⭐ Correct!
-      </div>`;
 
-  } else {
-    button.classList.add("wrong");
+  if (
+    selected ===
+    practiceCurrent.meaning
+  ) {
 
-    const attempts =
-      practiceAttempts[practiceCurrent.word];
+    document
+      .getElementById(
+        "practiceFeedback"
+      )
+      .innerHTML = `
+        <div class="feedback good">
+          ⭐ Correct!
+        </div>
+      `;
 
-    if (attempts < 3) {
-      practiceQueue.push(practiceCurrent);
-
-      document.getElementById("practiceFeedback").innerHTML =
-        `<div class="feedback bad">
-          📚 ${escapeHtml(practiceCurrent.word)}
-          = ${escapeHtml(practiceCurrent.meaning)}
-          <br>
-          You will see this word again.
-        </div>`;
-    } else {
-      document.getElementById("practiceFeedback").innerHTML =
-        `<div class="feedback bad">
-          📚 ${escapeHtml(practiceCurrent.word)}
-          = ${escapeHtml(practiceCurrent.meaning)}
-          <br>
-          Maximum 3 tries reached.
-        </div>`;
-    }
   }
 
-  document.getElementById("practiceNext")
-    .classList.remove("hidden");
+  else {
+
+    button.classList.add(
+      "wrong"
+    );
+
+
+    /*
+      Practice 전체 세션에서
+      해당 단어를 몇 번 틀렸는지 누적
+    */
+
+    practiceWrongHistory[
+      practiceCurrent.word
+    ] =
+      (
+        practiceWrongHistory[
+          practiceCurrent.word
+        ] || 0
+      ) + 1;
+
+
+    /*
+      누적 2회 이상이면
+      Frequently Missed Words
+    */
+
+    if (
+      practiceWrongHistory[
+        practiceCurrent.word
+      ] >= 2
+    ) {
+
+      addFrequentlyMissed(
+        practiceCurrent.word
+      );
+
+    }
+
+
+    const attempts =
+      practiceAttempts[
+        practiceCurrent.word
+      ];
+
+
+    if (attempts < 3) {
+
+      /*
+        틀린 단어는 큐의 맨 뒤로
+      */
+
+      practiceQueue.push(
+        practiceCurrent
+      );
+
+
+      document
+        .getElementById(
+          "practiceFeedback"
+        )
+        .innerHTML = `
+          <div class="feedback bad">
+
+            <div class="practice-answer">
+              📚 ${escapeHtml(
+                practiceCurrent.word
+              )}
+              =
+              ${escapeHtml(
+                practiceCurrent.meaning
+              )}
+            </div>
+
+            <div class="practice-note">
+              You will see this word again.
+            </div>
+
+          </div>
+        `;
+
+    }
+
+    else {
+
+      document
+        .getElementById(
+          "practiceFeedback"
+        )
+        .innerHTML = `
+          <div class="feedback bad">
+
+            <div class="practice-answer">
+              📚 ${escapeHtml(
+                practiceCurrent.word
+              )}
+              =
+              ${escapeHtml(
+                practiceCurrent.meaning
+              )}
+            </div>
+
+            <div class="practice-note">
+              Maximum 3 tries reached.
+            </div>
+
+          </div>
+        `;
+
+    }
+
+  }
+
+
+  document
+    .getElementById(
+      "practiceNext"
+    )
+    .classList.remove(
+      "hidden"
+    );
+
 }
+
 
 function nextPractice() {
+
   showPracticeQuestion();
+
 }
 
-function finishPractice() {
-  showScreen("practiceCompleteScreen");
 
-  document.getElementById("practiceCompleteText").textContent =
-    `You practiced all ${practiceInitialCount} words.`;
+function finishPractice() {
+
+  showScreen(
+    "practiceCompleteScreen"
+  );
+
+
+  document
+    .getElementById(
+      "practiceCompleteText"
+    )
+    .textContent =
+      `You practiced all ${practiceInitialCount} words.`;
+
 }
 
 
@@ -1043,390 +1903,1001 @@ function finishPractice() {
 ========================================================= */
 
 const TEST_TYPES = [
+
   "en_to_ko",
   "ko_to_en",
   "unscramble",
   "spelling",
   "example_gap"
+
 ];
 
+
 let testQuestions = [];
+
 let testIndex = 0;
 let testScore = 0;
-let testWrongWords = new Set();
+
+let testWrongWords =
+  new Set();
+
 let testAnswered = false;
-let currentTestQuestion = null;
+
+let currentTestQuestion =
+  null;
+
 let lastReportText = "";
 
+
+/* =========================================================
+   TEST START
+========================================================= */
+
 function startTest() {
-  testQuestions = buildBalancedTest();
+
+  testQuestions =
+    buildBalancedTest();
 
   testIndex = 0;
   testScore = 0;
-  testWrongWords = new Set();
 
-  showScreen("testScreen");
+  testWrongWords =
+    new Set();
+
+  showScreen(
+    "testScreen"
+  );
 
   showTestQuestion();
+
 }
 
+
+/*
+  문제 유형의 수가 가능한 한
+  균등하도록 배정한 뒤 shuffle
+*/
+
 function buildBalancedTest() {
-  const words = shuffle([...vocabulary]);
+
+  const words =
+    shuffle(
+      [...vocabulary]
+    );
+
 
   let types = [];
 
-  for (let i = 0; i < words.length; i++) {
-    types.push(
-      TEST_TYPES[i % TEST_TYPES.length]
-    );
-  }
 
-  types = shuffle(types);
-
-  return words.map((item, index) => ({
-    item,
-    type: types[index]
-  }));
-}
-
-function showTestQuestion() {
-  testAnswered = false;
-
-  currentTestQuestion = testQuestions[testIndex];
-
-  const item = currentTestQuestion.item;
-  const type = currentTestQuestion.type;
-
-  document.getElementById("testProgress").textContent =
-    `${testIndex + 1} / ${testQuestions.length}`;
-
-  document.getElementById("testQuestion").innerHTML = "";
-  document.getElementById("testChoices").innerHTML = "";
-  document.getElementById("testInputArea").innerHTML = "";
-  document.getElementById("testFeedback").innerHTML = "";
-
-  document.getElementById("testNext")
-    .classList.add("hidden");
-
-  if (type === "en_to_ko") {
-    renderEnglishToKorean(item);
-  }
-
-  else if (type === "ko_to_en") {
-    renderKoreanToEnglish(item);
-  }
-
-  else if (type === "unscramble") {
-    renderUnscramble(item);
-  }
-
-  else if (type === "spelling") {
-    renderSpelling(item);
-  }
-
-  else if (type === "example_gap") {
-    renderExampleGap(item);
-  }
-}
-
-
-/* ---------- TYPE 1 ---------- */
-
-function renderEnglishToKorean(item) {
-  document.getElementById("testTypeLabel").textContent =
-    "Choose the correct meaning.";
-
-  document.getElementById("testQuestion").innerHTML =
-    `<div class="word">${escapeHtml(item.word)}</div>`;
-
-  const distractors = shuffle(
-    vocabulary
-      .filter(v => v.word !== item.word)
-      .map(v => v.meaning)
-  ).slice(0, 3);
-
-  renderTestChoices(
-    shuffle([item.meaning, ...distractors]),
-    item.meaning
-  );
-}
-
-
-/* ---------- TYPE 2 ---------- */
-
-function renderKoreanToEnglish(item) {
-  document.getElementById("testTypeLabel").textContent =
-    "Choose the correct English word.";
-
-  document.getElementById("testQuestion").innerHTML =
-    `<div class="meaning">${escapeHtml(item.meaning)}</div>`;
-
-  const distractors = shuffle(
-    vocabulary
-      .filter(v => v.word !== item.word)
-      .map(v => v.word)
-  ).slice(0, 3);
-
-  renderTestChoices(
-    shuffle([item.word, ...distractors]),
-    item.word
-  );
-}
-
-
-/* ---------- TYPE 3 ---------- */
-
-function renderUnscramble(item) {
-  document.getElementById("testTypeLabel").textContent =
-    "Unscramble the word.";
-
-  const scrambled = scrambleWord(item.word);
-
-  document.getElementById("testQuestion").innerHTML = `
-    <div class="meaning">
-      ${escapeHtml(item.meaning)}
-    </div>
-
-    <div class="unscramble">
-      ${escapeHtml(scrambled)}
-    </div>
-  `;
-
-  renderTextInput(item.word);
-}
-
-function scrambleWord(word) {
-  const compact = word.replace(/\s/g, "");
-
-  if (compact.length <= 2) {
-    return compact.split("").reverse().join(" ");
-  }
-
-  let scrambled = compact;
-
-  let safety = 0;
-
-  while (
-    normalize(scrambled) === normalize(compact) &&
-    safety < 20
+  for (
+    let i = 0;
+    i < words.length;
+    i++
   ) {
-    scrambled =
-      shuffle(compact.split("")).join("");
 
-    safety++;
+    types.push(
+      TEST_TYPES[
+        i %
+        TEST_TYPES.length
+      ]
+    );
+
   }
 
-  return scrambled.split("").join(" ");
-}
+
+  types =
+    shuffle(types);
 
 
-/* ---------- TYPE 4 ---------- */
+  return words.map(
+    (item, index) => ({
 
-function renderSpelling(item) {
-  document.getElementById("testTypeLabel").textContent =
-    "Write the English word.";
+      item: item,
+      type: types[index]
 
-  document.getElementById("testQuestion").innerHTML =
-    `<div class="meaning">${escapeHtml(item.meaning)}</div>`;
-
-  renderTextInput(item.word);
-}
-
-
-/* ---------- TYPE 5 ---------- */
-
-function renderExampleGap(item) {
-  document.getElementById("testTypeLabel").textContent =
-    "Choose the word that completes the sentence.";
-
-  const escaped =
-    item.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-  const regex =
-    new RegExp(escaped, "gi");
-
-  const sentence =
-    item.example.replace(regex, "________");
-
-  document.getElementById("testQuestion").innerHTML =
-    `<div class="example" style="border-top:none;">
-      ${escapeHtml(sentence)}
-    </div>`;
-
-  const distractors = shuffle(
-    vocabulary
-      .filter(v => v.word !== item.word)
-      .map(v => v.word)
-  ).slice(0, 3);
-
-  renderTestChoices(
-    shuffle([item.word, ...distractors]),
-    item.word
+    })
   );
+
 }
 
 
 /* =========================================================
-   TEST ANSWERING
+   TEST QUESTION
 ========================================================= */
 
-function renderTestChoices(choices, correctAnswer) {
-  const box =
-    document.getElementById("testChoices");
+function showTestQuestion() {
 
-  choices.forEach(choice => {
-    const button =
-      document.createElement("button");
+  testAnswered = false;
 
-    button.className = "choice";
-    button.textContent = choice;
 
-    button.onclick = () =>
-      answerTestChoice(
-        button,
-        choice,
-        correctAnswer
+  currentTestQuestion =
+    testQuestions[
+      testIndex
+    ];
+
+
+  const item =
+    currentTestQuestion.item;
+
+  const type =
+    currentTestQuestion.type;
+
+
+  document
+    .getElementById(
+      "testProgress"
+    )
+    .textContent =
+      `${testIndex + 1} / ${testQuestions.length}`;
+
+
+  document
+    .getElementById(
+      "testQuestion"
+    )
+    .innerHTML = "";
+
+
+  document
+    .getElementById(
+      "testChoices"
+    )
+    .innerHTML = "";
+
+
+  document
+    .getElementById(
+      "testInputArea"
+    )
+    .innerHTML = "";
+
+
+  document
+    .getElementById(
+      "testFeedback"
+    )
+    .innerHTML = "";
+
+
+  document
+    .getElementById(
+      "testNext"
+    )
+    .classList.add(
+      "hidden"
+    );
+
+
+  switch (type) {
+
+    case "en_to_ko":
+
+      renderEnglishToKorean(
+        item
       );
 
-    box.appendChild(button);
-  });
+      break;
+
+
+    case "ko_to_en":
+
+      renderKoreanToEnglish(
+        item
+      );
+
+      break;
+
+
+    case "unscramble":
+
+      renderUnscramble(
+        item
+      );
+
+      break;
+
+
+    case "spelling":
+
+      renderSpelling(
+        item
+      );
+
+      break;
+
+
+    case "example_gap":
+
+      renderExampleGap(
+        item
+      );
+
+      break;
+
+  }
+
 }
+
+
+/* =========================================================
+   TYPE 1: ENGLISH → KOREAN
+========================================================= */
+
+function renderEnglishToKorean(
+  item
+) {
+
+  document
+    .getElementById(
+      "testTypeLabel"
+    )
+    .textContent =
+      "Choose the correct meaning.";
+
+
+  document
+    .getElementById(
+      "testQuestion"
+    )
+    .innerHTML = `
+      <div class="word">
+        ${escapeHtml(item.word)}
+      </div>
+    `;
+
+
+  const distractors =
+    shuffle(
+
+      vocabulary
+
+        .filter(
+          v =>
+            v.word !==
+            item.word
+        )
+
+        .map(v => v.meaning)
+
+    ).slice(0, 3);
+
+
+  renderTestChoices(
+
+    shuffle([
+      item.meaning,
+      ...distractors
+    ]),
+
+    item.meaning
+
+  );
+
+}
+
+
+/* =========================================================
+   TYPE 2: KOREAN → ENGLISH
+========================================================= */
+
+function renderKoreanToEnglish(
+  item
+) {
+
+  document
+    .getElementById(
+      "testTypeLabel"
+    )
+    .textContent =
+      "Choose the correct English word.";
+
+
+  document
+    .getElementById(
+      "testQuestion"
+    )
+    .innerHTML = `
+      <div class="meaning">
+        ${escapeHtml(
+          item.meaning
+        )}
+      </div>
+    `;
+
+
+  const distractors =
+    shuffle(
+
+      vocabulary
+
+        .filter(
+          v =>
+            v.word !==
+            item.word
+        )
+
+        .map(v => v.word)
+
+    ).slice(0, 3);
+
+
+  renderTestChoices(
+
+    shuffle([
+      item.word,
+      ...distractors
+    ]),
+
+    item.word
+
+  );
+
+}
+
+
+/* =========================================================
+   TYPE 3: UNSCRAMBLE
+========================================================= */
+
+function renderUnscramble(
+  item
+) {
+
+  document
+    .getElementById(
+      "testTypeLabel"
+    )
+    .textContent =
+      "Unscramble the word.";
+
+
+  const scrambled =
+    scrambleWord(
+      item.word
+    );
+
+
+  document
+    .getElementById(
+      "testQuestion"
+    )
+    .innerHTML = `
+
+      <div class="meaning">
+        ${escapeHtml(
+          item.meaning
+        )}
+      </div>
+
+      <div class="unscramble">
+        ${escapeHtml(
+          scrambled
+        )}
+      </div>
+
+    `;
+
+
+  /*
+    inline onclick을 사용하지 않고
+    addEventListener 방식으로 수정
+  */
+
+  renderTextInput(
+    item.word
+  );
+
+}
+
+
+/* =========================================================
+   SCRAMBLE WORD
+========================================================= */
+
+function scrambleWord(word) {
+
+  /*
+    여러 단어로 이루어진 표현은
+    공백을 제거한 뒤 글자 단위로 섞음
+  */
+
+  const compact =
+    word.replace(/\s/g, "");
+
+
+  if (
+    compact.length <= 2
+  ) {
+
+    return compact
+      .split("")
+      .reverse()
+      .join(" ");
+
+  }
+
+
+  let scrambled =
+    compact;
+
+  let safety = 0;
+
+
+  while (
+    normalize(scrambled) ===
+    normalize(compact) &&
+    safety < 30
+  ) {
+
+    scrambled =
+      shuffle(
+        compact.split("")
+      ).join("");
+
+    safety++;
+
+  }
+
+
+  return scrambled
+    .split("")
+    .join(" ");
+
+}
+
+
+/* =========================================================
+   TYPE 4: SPELLING
+========================================================= */
+
+function renderSpelling(item) {
+
+  document
+    .getElementById(
+      "testTypeLabel"
+    )
+    .textContent =
+      "Write the English word.";
+
+
+  document
+    .getElementById(
+      "testQuestion"
+    )
+    .innerHTML = `
+      <div class="meaning">
+        ${escapeHtml(
+          item.meaning
+        )}
+      </div>
+    `;
+
+
+  renderTextInput(
+    item.word
+  );
+
+}
+
+
+/* =========================================================
+   TYPE 5: EXAMPLE GAP
+========================================================= */
+
+function renderExampleGap(item) {
+
+  document
+    .getElementById(
+      "testTypeLabel"
+    )
+    .textContent =
+      "Choose the word that completes the sentence.";
+
+
+  const escaped =
+    escapeRegExp(
+      item.word
+    );
+
+
+  /*
+    첫 번째 목표 어휘만 빈칸 처리.
+    sweet → sweets 같은 부분 일치 문제를
+    줄이기 위해 word boundary 사용.
+  */
+
+  const regex =
+    new RegExp(
+      `\\b${escaped}\\b`,
+      "i"
+    );
+
+
+  let sentence =
+    item.example.replace(
+      regex,
+      "________"
+    );
+
+
+  /*
+    혹시 정확한 word boundary로
+    찾지 못하는 경우 fallback
+  */
+
+  if (
+    sentence ===
+    item.example
+  ) {
+
+    const fallback =
+      new RegExp(
+        escaped,
+        "i"
+      );
+
+    sentence =
+      item.example.replace(
+        fallback,
+        "________"
+      );
+
+  }
+
+
+  document
+    .getElementById(
+      "testQuestion"
+    )
+    .innerHTML = `
+      <div
+        class="example"
+        style="border-top:none;"
+      >
+        ${escapeHtml(sentence)}
+      </div>
+    `;
+
+
+  const distractors =
+    shuffle(
+
+      vocabulary
+
+        .filter(
+          v =>
+            v.word !==
+            item.word
+        )
+
+        .map(v => v.word)
+
+    ).slice(0, 3);
+
+
+  renderTestChoices(
+
+    shuffle([
+      item.word,
+      ...distractors
+    ]),
+
+    item.word
+
+  );
+
+}
+
+
+/* =========================================================
+   MULTIPLE CHOICE ANSWERING
+========================================================= */
+
+function renderTestChoices(
+  choices,
+  correctAnswer
+) {
+
+  const box =
+    document.getElementById(
+      "testChoices"
+    );
+
+
+  choices.forEach(choice => {
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+    button.className =
+      "choice";
+
+    button.textContent =
+      choice;
+
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        answerTestChoice(
+          button,
+          choice,
+          correctAnswer
+        );
+
+      }
+    );
+
+
+    box.appendChild(button);
+
+  });
+
+}
+
 
 function answerTestChoice(
   button,
   selected,
   correctAnswer
 ) {
-  if (testAnswered) return;
+
+  if (testAnswered) {
+
+    return;
+
+  }
+
 
   testAnswered = true;
 
+
   const buttons =
-    document.querySelectorAll("#testChoices .choice");
+    document.querySelectorAll(
+      "#testChoices .choice"
+    );
+
 
   buttons.forEach(btn => {
+
     btn.disabled = true;
 
+
     if (
-      normalize(btn.textContent) ===
-      normalize(correctAnswer)
+      normalize(
+        btn.textContent
+      ) ===
+      normalize(
+        correctAnswer
+      )
     ) {
-      btn.classList.add("correct");
+
+      btn.classList.add(
+        "correct"
+      );
+
     }
+
   });
+
 
   const correct =
     normalize(selected) ===
     normalize(correctAnswer);
 
-  registerTestResult(correct, button);
+
+  registerTestResult(
+    correct,
+    button
+  );
+
 }
 
-function renderTextInput(correctAnswer) {
+
+/* =========================================================
+   INPUT-BASED TEST QUESTIONS
+
+   Unscramble / Spelling 공통
+
+   중요:
+   inline onclick 대신
+   JavaScript event listener 사용
+========================================================= */
+
+function renderTextInput(
+  correctAnswer
+) {
+
   const area =
-    document.getElementById("testInputArea");
+    document.getElementById(
+      "testInputArea"
+    );
 
-  area.innerHTML = `
-    <input
-      id="testTextInput"
-      type="text"
-      autocomplete="off"
-      autocapitalize="none"
-      spellcheck="false"
-      placeholder="Type your answer..."
-    >
 
-    <button
-      id="testCheckButton"
-      class="primary"
-      onclick="answerTestInput(
-        ${JSON.stringify(correctAnswer)}
-      )"
-    >
-      Check
-    </button>
-  `;
+  area.innerHTML = "";
+
 
   const input =
-    document.getElementById("testTextInput");
+    document.createElement(
+      "input"
+    );
 
-  input.addEventListener("keydown", event => {
-    if (event.key === "Enter") {
-      if (!testAnswered) {
-        answerTestInput(correctAnswer);
-      } else {
-        nextTest();
-      }
-    }
-  });
 
-  setTimeout(() => input.focus(), 100);
-}
+  input.id =
+    "testTextInput";
 
-function answerTestInput(correctAnswer) {
-  if (testAnswered) return;
+  input.type =
+    "text";
 
-  const input =
-    document.getElementById("testTextInput");
+  input.autocomplete =
+    "off";
 
-  const answer = input.value;
+  input.autocapitalize =
+    "none";
 
-  if (normalize(answer) === "") return;
+  input.spellcheck =
+    false;
 
-  testAnswered = true;
-  input.disabled = true;
+  input.placeholder =
+    "Type your answer...";
+
 
   const checkButton =
-    document.getElementById("testCheckButton");
+    document.createElement(
+      "button"
+    );
+
+
+  checkButton.id =
+    "testCheckButton";
+
+  checkButton.className =
+    "primary";
+
+  checkButton.textContent =
+    "Check";
+
+
+  /*
+    BUG FIX:
+    Check 클릭 시
+    correctAnswer를 closure로 직접 전달
+  */
+
+  checkButton.addEventListener(
+    "click",
+    () => {
+
+      answerTestInput(
+        correctAnswer
+      );
+
+    }
+  );
+
+
+  input.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key === "Enter"
+      ) {
+
+        if (!testAnswered) {
+
+          answerTestInput(
+            correctAnswer
+          );
+
+        }
+
+        else {
+
+          nextTest();
+
+        }
+
+      }
+
+    }
+  );
+
+
+  area.appendChild(input);
+  area.appendChild(checkButton);
+
+
+  setTimeout(
+    () => input.focus(),
+    100
+  );
+
+}
+
+
+/* =========================================================
+   INPUT ANSWER CHECK
+========================================================= */
+
+function answerTestInput(
+  correctAnswer
+) {
+
+  if (testAnswered) {
+
+    return;
+
+  }
+
+
+  const input =
+    document.getElementById(
+      "testTextInput"
+    );
+
+
+  if (!input) {
+
+    return;
+
+  }
+
+
+  const answer =
+    input.value;
+
+
+  if (
+    normalize(answer) === ""
+  ) {
+
+    return;
+
+  }
+
+
+  testAnswered = true;
+
+  input.disabled = true;
+
+
+  const checkButton =
+    document.getElementById(
+      "testCheckButton"
+    );
+
 
   if (checkButton) {
-    checkButton.classList.add("hidden");
+
+    checkButton.classList.add(
+      "hidden"
+    );
+
   }
+
 
   const correct =
     normalize(answer) ===
     normalize(correctAnswer);
 
-  registerTestResult(correct);
+
+  registerTestResult(
+    correct
+  );
+
 }
 
-function registerTestResult(correct, wrongButton = null) {
+
+/* =========================================================
+   TEST RESULT REGISTRATION
+========================================================= */
+
+function registerTestResult(
+  correct,
+  wrongButton = null
+) {
+
   const item =
     currentTestQuestion.item;
 
+
   if (correct) {
+
     testScore++;
 
-    document.getElementById("testFeedback").innerHTML =
-      `<div class="feedback good">
-        ⭐ Correct!
-      </div>`;
 
-  } else {
-    testWrongWords.add(item.word);
+    document
+      .getElementById(
+        "testFeedback"
+      )
+      .innerHTML = `
+        <div class="feedback good">
+          ⭐ Correct!
+        </div>
+      `;
+
+  }
+
+  else {
+
+    /*
+      Test Yourself에서 틀린 단어는
+      무조건 Frequently Missed Words
+    */
+
+    testWrongWords.add(
+      item.word
+    );
+
+    addFrequentlyMissed(
+      item.word
+    );
+
 
     if (wrongButton) {
-      wrongButton.classList.add("wrong");
+
+      wrongButton.classList.add(
+        "wrong"
+      );
+
     }
 
-    document.getElementById("testFeedback").innerHTML =
-      `<div class="feedback bad">
-        📚 Answer: ${escapeHtml(item.word)}
-      </div>`;
+
+    document
+      .getElementById(
+        "testFeedback"
+      )
+      .innerHTML = `
+        <div class="feedback bad">
+          📚 Answer:
+          ${escapeHtml(
+            item.word
+          )}
+        </div>
+      `;
+
   }
 
-  document.getElementById("testNext")
-    .classList.remove("hidden");
+
+  document
+    .getElementById(
+      "testNext"
+    )
+    .classList.remove(
+      "hidden"
+    );
+
 }
 
+
+/* =========================================================
+   NEXT TEST
+========================================================= */
+
 function nextTest() {
+
   testIndex++;
 
-  if (testIndex < testQuestions.length) {
+
+  if (
+    testIndex <
+    testQuestions.length
+  ) {
+
     showTestQuestion();
-  } else {
-    showResult();
+
   }
+
+  else {
+
+    showResult();
+
+  }
+
 }
 
 
@@ -1435,78 +2906,150 @@ function nextTest() {
 ========================================================= */
 
 function showResult() {
-  showScreen("resultScreen");
+
+  showScreen(
+    "resultScreen"
+  );
+
 
   const total =
     testQuestions.length;
 
+
   const percent =
-    Math.round((testScore / total) * 100);
+    Math.round(
+      (
+        testScore /
+        total
+      ) * 100
+    );
+
 
   let icon;
   let title;
 
+
   if (percent === 100) {
+
     icon = "👑";
-    title = "Vocabulary Master!";
+    title =
+      "Vocabulary Master!";
+
   }
 
-  else if (percent >= 90) {
+  else if (
+    percent >= 90
+  ) {
+
     icon = "🌟";
-    title = "Vocabulary Star!";
+    title =
+      "Vocabulary Star!";
+
   }
 
-  else if (percent >= 80) {
+  else if (
+    percent >= 80
+  ) {
+
     icon = "⭐";
-    title = "Great Job!";
+    title =
+      "Great Job!";
+
   }
 
-  else if (percent >= 70) {
+  else if (
+    percent >= 70
+  ) {
+
     icon = "💪";
-    title = "Almost There!";
+    title =
+      "Almost There!";
+
   }
 
   else {
+
     icon = "🌱";
-    title = "Keep Growing!";
+    title =
+      "Keep Growing!";
+
   }
 
-  document.getElementById("rankIcon").textContent =
-    icon;
 
-  document.getElementById("rankTitle").textContent =
-    title;
+  document
+    .getElementById(
+      "rankIcon"
+    )
+    .textContent =
+      icon;
 
-  document.getElementById("finalScore").textContent =
-    `${testScore} / ${total}`;
 
-  document.getElementById("accuracy").textContent =
-    `🎯 Accuracy: ${percent}%`;
+  document
+    .getElementById(
+      "rankTitle"
+    )
+    .textContent =
+      title;
+
+
+  document
+    .getElementById(
+      "finalScore"
+    )
+    .textContent =
+      `${testScore} / ${total}`;
+
+
+  document
+    .getElementById(
+      "accuracy"
+    )
+    .textContent =
+      `🎯 Accuracy: ${percent}%`;
+
 
   const reviewBox =
-    document.getElementById("reviewList");
+    document.getElementById(
+      "reviewList"
+    );
+
 
   const reviewWords =
     [...testWrongWords];
 
-  if (reviewWords.length === 0) {
+
+  if (
+    reviewWords.length === 0
+  ) {
+
     reviewBox.innerHTML =
       "🎉 Perfect! No words to review.";
-  } else {
+
+  }
+
+  else {
+
     reviewBox.innerHTML =
       reviewWords
-        .map(word =>
-          `<div class="review-word">
+
+        .map(word => `
+          <div class="review-word">
             • ${escapeHtml(word)}
-          </div>`
-        )
+          </div>
+        `)
+
         .join("");
+
   }
+
 
   const reviewText =
     reviewWords.length === 0
+
       ? "None 🎉"
+
       : reviewWords.join(", ");
+
 
   lastReportText =
 `${icon} ${title}
@@ -1516,40 +3059,68 @@ function showResult() {
 
 📖 Words to Review:
 ${reviewText}`;
+
 }
 
 
 /* =========================================================
-   COPY
+   COPY RESULT
 ========================================================= */
 
 async function copyResult() {
+
   try {
-    await navigator.clipboard.writeText(
-      lastReportText
-    );
+
+    await navigator.clipboard
+      .writeText(
+        lastReportText
+      );
+
 
     alert(
       "📋 결과가 복사되었습니다!\nPadlet에 붙여넣으세요."
     );
 
-  } catch (error) {
+  }
+
+  catch (error) {
+
     const textarea =
-      document.createElement("textarea");
+      document.createElement(
+        "textarea"
+      );
+
 
     textarea.value =
       lastReportText;
 
-    document.body.appendChild(textarea);
+
+    document.body
+      .appendChild(
+        textarea
+      );
+
 
     textarea.select();
 
-    document.execCommand("copy");
 
-    document.body.removeChild(textarea);
+    document.execCommand(
+      "copy"
+    );
 
-    alert("📋 결과가 복사되었습니다!");
+
+    document.body
+      .removeChild(
+        textarea
+      );
+
+
+    alert(
+      "📋 결과가 복사되었습니다!"
+    );
+
   }
+
 }
 
 </script>
