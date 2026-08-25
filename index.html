@@ -1692,18 +1692,20 @@ async function loadLessonData(
 ========================================================= */
 
 function backToGrades() {
-
-  history.back();
-
+  pushRoute(
+    "grades",
+    null,
+    null
+  );
 }
-
 
 function backToLessons() {
-
-  history.back();
-
+  pushRoute(
+    "lessons",
+    currentGrade,
+    null
+  );
 }
-
 
 function showLessonHome() {
 
