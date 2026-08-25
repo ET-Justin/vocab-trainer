@@ -726,6 +726,7 @@ let practiceWrongHistory = {};
 
 let currentAudio = null;
 let feedbackAudio = null;
+let victoryPlayed = false;
 
 
 /* =========================================================
@@ -1007,6 +1008,29 @@ function playCurrentExampleAudio() {
       flashList[flashIndex].word
     )
   );
+
+}
+
+
+function playVictorySound() {
+
+  if (victoryPlayed) {
+    return;
+  }
+
+  victoryPlayed = true;
+
+  if (feedbackAudio) {
+    feedbackAudio.pause();
+    feedbackAudio.currentTime = 0;
+    feedbackAudio = null;
+  }
+
+  const audio = new Audio("sound/victory.mp3");
+
+  audio.play().catch(error => {
+    console.log("Victory audio playback failed:", error);
+  });
 
 }
 
@@ -1692,20 +1716,26 @@ async function loadLessonData(
 ========================================================= */
 
 function backToGrades() {
+
   pushRoute(
     "grades",
     null,
     null
   );
+
 }
 
+
 function backToLessons() {
+
   pushRoute(
     "lessons",
     currentGrade,
     null
   );
+
 }
+
 
 function showLessonHome() {
 
@@ -2733,6 +2763,8 @@ function startTest() {
 
 function initializeTest() {
 
+  victoryPlayed = false;
+
   testQuestions =
     buildBalancedTest();
 
@@ -3707,6 +3739,11 @@ function showResult() {
         total
       ) * 100
     );
+
+
+  if (percent === 100) {
+    playVictorySound();
+  }
 
 
   let icon;
