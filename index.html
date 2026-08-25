@@ -2777,6 +2777,22 @@ function initializeTest() {
 
 }
 
+  function canUseExampleGap(item) {
+
+  const escaped =
+    escapeRegExp(item.word);
+
+  const regex =
+    new RegExp(
+      `\\b${escaped}\\b`,
+      "i"
+    );
+
+  return regex.test(
+    item.example
+  );
+
+}
 
 function buildBalancedTest() {
 
@@ -2811,15 +2827,86 @@ function buildBalancedTest() {
     );
 
 
-  return words.map(
-    (item, index) => ({
+  const questions =
+    words.map(
+      (item, index) => ({
 
-      item,
-      type:
-        types[index]
+        item,
+        type:
+          types[index]
 
-    })
-  );
+      })
+    );
+
+
+  /* Example Gap에는
+     표제어가 예문에 정확한 형태로 있는 단어만 배정 */
+
+  for (
+    let i = 0;
+    i < questions.length;
+    i++
+  ) {
+
+    if (
+      questions[i].type === "example_gap" &&
+      !canUseExampleGap(
+        questions[i].item
+      )
+    ) {
+
+      const swapIndex =
+        questions.findIndex(
+          (question, index) =>
+            index !== i &&
+            question.type !== "example_gap" &&
+            canUseExampleGap(
+              question.item
+            )
+        );
+
+
+      if (
+        swapIndex !== -1
+      ) {
+
+        const tempType =
+          questions[i].type;
+
+        questions[i].type =
+          questions[swapIndex].type;
+
+        questions[swapIndex].type =
+          tempType;
+
+      }
+
+      else {
+
+        /* 적합한 단어가 부족할 경우의 안전장치 */
+
+        const fallbackTypes =
+          TEST_TYPES.filter(
+            type =>
+              type !== "example_gap"
+          );
+
+        questions[i].type =
+          fallbackTypes[
+            Math.floor(
+              Math.random() *
+              fallbackTypes.length
+            )
+          ];
+
+      }
+
+    }
+
+  }
+
+
+  return questions;
 
 }
 
@@ -3225,25 +3312,6 @@ function renderExampleGap(
     );
 
 
-  if (
-    sentence ===
-    item.example
-  ) {
-
-    const fallback =
-      new RegExp(
-        escaped,
-        "i"
-      );
-
-
-    sentence =
-      item.example.replace(
-        fallback,
-        "________"
-      );
-
-  }
 
 
   document
