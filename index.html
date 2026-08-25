@@ -173,6 +173,26 @@
       margin-top: 12px;
     }
 
+    .audio-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .audio-button {
+      width: auto;
+      min-width: 112px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      background: #eef1f6;
+      color: #333;
+    }
+
+    .audio-button:active {
+      transform: scale(0.97);
+    }
+
     .choice {
       margin-top: 10px;
       background: #f1f3f5;
@@ -452,6 +472,17 @@
 
       <div class="word" id="flashWord"></div>
 
+      <div class="audio-row">
+        <button
+          class="audio-button"
+          type="button"
+          onclick="event.stopPropagation(); playCurrentWordAudio();"
+          aria-label="단어 발음 다시 듣기"
+        >
+          🔊 Word
+        </button>
+      </div>
+
       <div id="flashBack" class="hidden">
 
         <div class="meaning" id="flashMeaning"></div>
@@ -459,6 +490,17 @@
         <div class="example">
 
           <div id="flashExample"></div>
+
+          <div class="audio-row">
+            <button
+              class="audio-button"
+              type="button"
+              onclick="event.stopPropagation(); playCurrentExampleAudio();"
+              aria-label="예문 발음 듣기"
+            >
+              🔊 Example
+            </button>
+          </div>
 
           <div
             class="example-ko"
@@ -658,7 +700,10 @@
 
 <footer>
   Developed by sungminpark@gne.go.kr with ChatGPT, 2026
-  (Source: 중학교 영어(천재교과서, 이상기, 2022))
+  <span id="sourceLine" class="hidden">
+    <br>
+    (Source: 중학교 영어(천재교과서, 이상기, 2022))
+  </span>
 </footer>
 
 </div>
@@ -678,6 +723,9 @@ const MAX_LESSON_NUMBER = 20;
 
 let frequentlyMissedWords = new Set();
 let practiceWrongHistory = {};
+
+let currentAudio = null;
+let feedbackAudio = null;
 
 
 /* =========================================================
@@ -699,6 +747,8 @@ function hideAllScreens() {
 
 function showScreen(id) {
 
+  stopCurrentAudio();
+
   hideAllScreens();
 
   const target =
@@ -706,6 +756,16 @@ function showScreen(id) {
 
   if (target) {
     target.classList.remove("hidden");
+  }
+
+  const sourceLine =
+    document.getElementById("sourceLine");
+
+  if (sourceLine) {
+    sourceLine.classList.toggle(
+      "hidden",
+      id !== "lessonScreen"
+    );
   }
 
   window.scrollTo({
@@ -794,6 +854,158 @@ function highlightTarget(example, word) {
   return safeExample.replace(
     regex,
     "<strong>$1</strong>"
+  );
+
+}
+
+
+function audioFilename(word) {
+
+  return String(word)
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+
+}
+
+
+function getWordAudioPath(word) {
+
+  const filename =
+    audioFilename(word);
+
+  return `data/grade${currentGrade}/audio/lesson${currentLesson}/${filename}.mp3`;
+
+}
+
+
+function getExampleAudioPath(word) {
+
+  const filename =
+    audioFilename(word);
+
+  return `data/grade${currentGrade}/audio/lesson${currentLesson}/${filename}-example.mp3`;
+
+}
+
+
+function stopCurrentAudio() {
+
+  if (!currentAudio) {
+    return;
+  }
+
+  currentAudio.pause();
+  currentAudio.currentTime = 0;
+  currentAudio = null;
+
+}
+
+
+function playFeedbackSound(correct) {
+
+  if (feedbackAudio) {
+    feedbackAudio.pause();
+    feedbackAudio.currentTime = 0;
+  }
+
+  const src = correct
+    ? "sound/correct.mp3"
+    : "sound/wrong.mp3";
+
+  const audio = new Audio(src);
+  feedbackAudio = audio;
+
+  audio.addEventListener(
+    "ended",
+    () => {
+      if (feedbackAudio === audio) {
+        feedbackAudio = null;
+      }
+    }
+  );
+
+  audio.play().catch(error => {
+    if (feedbackAudio === audio) {
+      feedbackAudio = null;
+    }
+
+    console.log(
+      "Feedback sound playback failed:",
+      error
+    );
+  });
+
+}
+
+
+function playAudio(src) {
+
+  stopCurrentAudio();
+
+  const audio =
+    new Audio(src);
+
+  currentAudio = audio;
+
+  audio.addEventListener(
+    "ended",
+    () => {
+
+      if (currentAudio === audio) {
+        currentAudio = null;
+      }
+
+    }
+  );
+
+  audio.play().catch(error => {
+
+    if (currentAudio === audio) {
+      currentAudio = null;
+    }
+
+    console.log(
+      "Audio playback was blocked or failed:",
+      error
+    );
+
+  });
+
+}
+
+
+function playCurrentWordAudio() {
+
+  if (
+    !flashList.length ||
+    !flashList[flashIndex]
+  ) {
+    return;
+  }
+
+  playAudio(
+    getWordAudioPath(
+      flashList[flashIndex].word
+    )
+  );
+
+}
+
+
+function playCurrentExampleAudio() {
+
+  if (
+    !flashList.length ||
+    !flashList[flashIndex]
+  ) {
+    return;
+  }
+
+  playAudio(
+    getExampleAudioPath(
+      flashList[flashIndex].word
+    )
   );
 
 }
@@ -1958,6 +2170,8 @@ function showFlashcard() {
     .textContent =
       `${flashIndex + 1} / ${flashList.length}`;
 
+  playCurrentWordAudio();
+
 }
 
 
@@ -2320,6 +2534,8 @@ function answerPractice(
     practiceCurrent.meaning
   ) {
 
+    playFeedbackSound(true);
+
     document
       .getElementById(
         "practiceFeedback"
@@ -2333,6 +2549,8 @@ function answerPractice(
   }
 
   else {
+
+    playFeedbackSound(false);
 
     button.classList.add(
       "wrong"
@@ -3373,6 +3591,8 @@ function registerTestResult(
     correct
   ) {
 
+    playFeedbackSound(true);
+
     testScore++;
 
 
@@ -3389,6 +3609,8 @@ function registerTestResult(
   }
 
   else {
+
+    playFeedbackSound(false);
 
     testWrongWords.add(
       item.word
